@@ -174,7 +174,7 @@ class DenseForSparse(tf.keras.layers.Dense):
 
         In order to correctly return an attribute, the function heavily relies
         on the name of `DenseForSparse` layer being in the following format:
-        f"sparse_to_dense.{attribute}_{feature_type}".
+        `f"sparse_to_dense.{attribute}_{feature_type}"`.
 
         Returns:
             attribute of the layer.

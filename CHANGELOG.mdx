@@ -796,17 +796,17 @@ Yanked.
 
 ### Improved Documentation
 - [#11130](https://github.com/rasahq/rasa/issues/11130): Clarify aspects of the API spec
-  GET /status endpoint: Correct response schema for model_id - a string, not an object.
+  `GET /status endpoint: Correct response schema for model_id` - a string, not an object.
 
-  GET /conversations/{conversation_id}/tracker: Describe each of the enum options for include_events query parameter
+  `GET /conversations/{conversation_id}/tracker`: Describe each of the enum options for include_events query parameter
 
-  POST & PUT /conversations/{conversation_id}/tracker/eventss: Events schema added for each event type
+  `POST & PUT /conversations/{conversation_id}/tracker/eventss`: Events schema added for each event type
 
-  GET /conversations/{conversation_id}/story: Clarified the all_sessions query parameter and default behaviour.
+  `GET /conversations/{conversation_id}/story`: Clarified the all_sessions query parameter and default behaviour.
 
-  POST /model/test/intents : Remove JSON payload option since it is not supported
+  `POST /model/test/intents` : Remove JSON payload option since it is not supported
 
-  POST /model/parse: Explain what emulation_mode is and how it affects response results
+  `POST /model/parse`: Explain what emulation_mode is and how it affects response results
 
 ### Miscellaneous internal changes
 - [#11088](https://github.com/rasahq/rasa/issues/11088), [#11123](https://github.com/rasahq/rasa/issues/11123), [#9093](https://github.com/rasahq/rasa/issues/9093), [#9099](https://github.com/rasahq/rasa/issues/9099)
@@ -1305,7 +1305,7 @@ Upgrade dependent libraries with security vulnerabilities (Pillow, TensorFlow, u
 ### Bugfixes
 - [#10241](https://github.com/rasahq/rasa/issues/10241): Bump TensorFlow version to 2.6.2. _We have plans to port this
   change to 3.x (see [this issue](https://github.com/RasaHQ/rasa/issues/10378))_.
-- [#10257](https://github.com/rasahq/rasa/issues/10257): Downgrade google-auth to <2.
+- [#10257](https://github.com/rasahq/rasa/issues/10257): Downgrade google-auth to &lt;2.
 
 ## [2.8.13] - 2021-11-11
 ### Bugfixes
@@ -1337,7 +1337,7 @@ Upgrade dependent libraries with security vulnerabilities (Pillow, TensorFlow, u
 
 ## [2.8.11] - 2021-10-20
 ### Bugfixes
-- [#9858](https://github.com/rasahq/rasa/issues/9858): Updates dependency on `sanic-jwt` (1.5.0 -> ">=1.6.0, <1.7.0")
+- [#9858](https://github.com/rasahq/rasa/issues/9858): Updates dependency on `sanic-jwt` `(1.5.0 -> ">=1.6.0, <1.7.0")`
 
   This removes the need to pin the version of `pyjwt` as the newer version of `sanic-jwt`
   manages this properly.
@@ -1940,11 +1940,11 @@ Upgrade dependent libraries with security vulnerabilities (Pillow, TensorFlow, u
 ### Improvements
 - [#7022](https://github.com/rasahq/rasa/issues/7022): The following endpoints now require the existence of the conversation for the specified conversation ID, raising an exception and returning a 404 status code.
 
-  * `GET /conversations/<conversation_id:path>/story`
+  * `GET /conversations/&lt;conversation_id:path&gt;/story`
 
-  * `POST /conversations/<conversation_id:path>/execute`
+  * `POST /conversations/&lt;conversation_id:path&gt;/execute`
 
-  * `POST /conversations/<conversation_id:path>/predict`
+  * `POST /conversations/&lt;conversation_id:path&gt;/predict`
 - [#7438](https://github.com/rasahq/rasa/issues/7438): Simplify our training by overwriting `train_step` instead of `fit` for our custom models.
 
   This allows us to use the build-in callbacks from Keras, such as the
@@ -5102,7 +5102,7 @@ Regression: changes from `1.2.12` were missing from `1.4.0`, readded them
 
 * rasa can handle story files containing multi line comments
 
-* template will retain { if escaped with {. e.g. {{“foo”: {bar}}} will result in {“foo”: “replaced value”}
+* template will retain `{` if escaped with `{`. e.g. `{{“foo”: {bar}}}` will result in `{“foo”: “replaced value”}`
 
 ## [1.1.8] - 2019-07-25
 
@@ -5378,7 +5378,7 @@ Regression: changes from `1.2.12` were missing from `1.4.0`, readded them
 ### Features
 
 * added `domain_warnings()` method to `Domain` which returns a dict containing the
-  diff between supplied {actions, intents, entities, slots} and what's contained in the
+  diff between supplied `{actions, intents, entities, slots}` and what's contained in the
   domain
 
 ### Bugfixes

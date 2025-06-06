@@ -22,6 +22,7 @@ class RasaReader(JsonTrainingDataReader):
     """Reader for Rasa NLU training data in JSON format.
 
     Example:
+    ```python
         {
           "rasa_nlu_data": {
             "regex_features": [
@@ -50,6 +51,7 @@ class RasaReader(JsonTrainingDataReader):
             ]
           }
         }
+    ```
     """
 
     def __init__(self) -> None:

@@ -36,7 +36,7 @@ def featurize_training_examples(
     Possible attributes are, for example, INTENT, RESPONSE, TEXT, ACTION_TEXT,
     ACTION_NAME or ENTITIES.
     Also returns sparse feature sizes for each attribute. It could look like this:
-    {TEXT: {FEATURE_TYPE_SEQUENCE: [16, 32], FEATURE_TYPE_SENTENCE: [16, 32]}}.
+    `{TEXT: {FEATURE_TYPE_SEQUENCE: [16, 32], FEATURE_TYPE_SENTENCE: [16, 32]}}`.
 
     Args:
         training_examples: the list of training examples
@@ -87,7 +87,7 @@ def _collect_sparse_feature_sizes(
     """Collects sparse feature sizes for all attributes that have sparse features.
 
     Returns sparse feature sizes for each attribute. It could look like this:
-    {TEXT: {FEATURE_TYPE_SEQUENCE: [16, 32], FEATURE_TYPE_SENTENCE: [16, 32]}}.
+    `{TEXT: {FEATURE_TYPE_SEQUENCE: [16, 32], FEATURE_TYPE_SENTENCE: [16, 32]}}`.
 
     Args:
         featurized_example: a featurized example

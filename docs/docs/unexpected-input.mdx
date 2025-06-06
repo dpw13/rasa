@@ -39,6 +39,7 @@ One common case of contextual interjections is during slot filling for [form](fo
 asks “Why do you need to know that?” or "Can you explain that?".
 The response should differ for each slot. For example:
 
+```
 <Chat caption="A contextual interjection">
 <ChatUserText>Hi</ChatUserText>
 <ChatBotText>Hello! I am restaurant search assistant! How can I help?</ChatBotText>
@@ -50,6 +51,7 @@ The response should differ for each slot. For example:
 <ChatBotText>I need to know how many people are in your party to ensure the restaurant can accomodate you.</ChatBotText>
 <ChatBotText>How many people?</ChatBotText>
 </Chat>
+```
 
 Since we want the `requested_slot` to influence the conversation,
 we need to set the property `influence_conversation` of the slot `requested_slot`

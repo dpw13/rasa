@@ -107,7 +107,7 @@ def deserialise_events(serialized_events: List[Dict[Text, Any]]) -> List["Event"
     """Convert a list of dictionaries to a list of corresponding events.
 
     Example format:
-        [{"event": "slot", "value": 5, "name": "my_slot"}]
+        `[{"event": "slot", "value": 5, "name": "my_slot"}]`
     """
     deserialised = []
 

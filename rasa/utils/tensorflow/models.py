@@ -599,7 +599,7 @@ class TransformerRasaModel(RasaModel):
         data on it to activate adjusted layer(s) and updates the data signatures.
 
         New and old sparse feature sizes could look like this:
-        {TEXT: {FEATURE_TYPE_SEQUENCE: [4, 24, 128], FEATURE_TYPE_SENTENCE: [4, 128]}}
+        `{TEXT: {FEATURE_TYPE_SEQUENCE: [4, 24, 128], FEATURE_TYPE_SENTENCE: [4, 128]}}`
 
         Args:
             data_example: a data example that is stored with the ML component.

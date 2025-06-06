@@ -1,5 +1,5 @@
-module.exports = {
-  default: [
+export default {
+  docs: [
     "introduction",
     "rasa-pro",
     {

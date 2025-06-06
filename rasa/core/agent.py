@@ -388,6 +388,7 @@ class Agent:
             The parsed message.
 
         Example:
+        ```python
                 {\
                     "text": '/greet{"name":"Rasa"}',\
                     "intent": {"name": "greet", "confidence": 1.0},\
@@ -395,7 +396,7 @@ class Agent:
                     "entities": [{"entity": "name", "start": 6,\
                                   "end": 21, "value": "Rasa"}],\
                 }
-
+        ```
         """
         message = UserMessage(message_data)
 

@@ -4,6 +4,7 @@ sidebar_label: Tuning Your NLU Model
 title: Tuning Your NLU Model
 abstract: Rasa will provide you with a suggested NLU config on initialization of the project, but as your project grows, it's likely that you will need to adjust your config to suit your training data.
 ---
+import Image from '@theme/IdealImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 
@@ -185,9 +186,11 @@ nlu:
 
 However, your bot receives incoming messages like this one, which combine both intents:
 
+```
 <Chat caption="User wants to know balance in order to transfer money">
 <ChatUserText>How much money do I have? I want to transfer some to savings.</ChatUserText>
 </Chat>
+```
 
 If you see enough of these examples, you can create a new intent multi-intent `check_balances+transfer_money` and add the incoming examples to it, for example:
 

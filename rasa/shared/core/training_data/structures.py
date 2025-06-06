@@ -700,6 +700,7 @@ class StoryGraph:
 
         The graph should be represented as a dictionary, e.g.:
 
+        ```
         >>> example_graph = {
         ...         "a": set("b", "c", "d"),
         ...         "b": set(),
@@ -709,6 +710,7 @@ class StoryGraph:
         ...         "f": set()}
         >>> StoryGraph.topological_sort(example_graph)
         (deque([u'e', u'f', u'a', u'c', u'd', u'b']), [])
+        ```
         """
         # noinspection PyPep8Naming
         GRAY, BLACK = 0, 1

@@ -2,8 +2,7 @@
 id: getting-started-with-analytics
 sidebar_label: Getting started
 title: Getting started with Analytics
-description:
-abstract: Visualise and process Rasa assistant metrics in the
+description: Visualise and process Rasa assistant metrics in the
   tooling of choice.
 ---
 
@@ -94,7 +93,7 @@ is possible
 
 
 For examples of how you can extract these metrics,
-see [Example queries](./example-queries.mdx).
+see [Example queries](./example-queries).
 
 ## Prerequisites
 
@@ -122,7 +121,7 @@ to an event broker. The assistant will stream all events to the event broker,
 which will then be consumed by Rasa Pro Services.
 
 The configuration of the assistant is the first step of
-[Installation and Configuration](./deploy/deploy-rasa-pro-services.mdx/#installation-and-configuration).
+[Installation and Configuration](/deploy/deploy-rasa-pro-services#installation-and-configuration).
 No additional configuration is required to connect the assistant to the
 Analytics pipeline. After the assistant is deployed, the Analytics pipeline
 will receive the data from the assistant and persist it to your
@@ -171,7 +170,7 @@ the PostgreSQL DB instance creation:
 - [**Password and Kerberos authentication**](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/postgresql-kerberos.html)
 
 Finally, when running the Analytics pipeline Docker container, set the
-[environment variable `RASA_ANALYTICS_DB_URL`](../../deploy/deploy-rasa-pro-services.mdx#docker-container-configuration-reference)
+[environment variable `RASA_ANALYTICS_DB_URL`](../../deploy/deploy-rasa-pro-services#docker-container-configuration-reference)
 to the PostgreSQL Amazon RDS DB instance URL.
 
 ### Redshift

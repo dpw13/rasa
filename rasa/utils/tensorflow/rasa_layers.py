@@ -56,11 +56,11 @@ class RasaCustomLayer(tf.keras.layers.Layer):
         ones and adjusts those which have their sparse feature sizes increased.
 
         This function heavily relies on the name of `DenseForSparse` layer being
-        in the following format - f"sparse_to_dense.{attribute}_{feature_type}" -
+        in the following format `f"sparse_to_dense.{attribute}_{feature_type}"`
         in order to correctly extract the attribute and feature type.
 
         New and old sparse feature sizes could look like this:
-        {TEXT: {FEATURE_TYPE_SEQUENCE: [4, 24, 128], FEATURE_TYPE_SENTENCE: [4, 128]}}
+        `{TEXT: {FEATURE_TYPE_SEQUENCE: [4, 24, 128], FEATURE_TYPE_SENTENCE: [4, 128]}}`
 
         Args:
             new_sparse_feature_sizes: sizes of current sparse features.

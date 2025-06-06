@@ -1,3 +1,5 @@
+.yarn
+.yarnrc.yml
 .netlify
 .docusaurus
 docs/variables.json

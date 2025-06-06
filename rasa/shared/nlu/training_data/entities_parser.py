@@ -155,7 +155,7 @@ def get_validated_dict(json_str: Text) -> Dict[Text, Text]:
     attributes.
 
     Users can specify entity roles, synonyms, groups for an entity in a dict, e.g.
-    [LA]{"entity": "city", "role": "to", "value": "Los Angeles"}.
+    `[LA]{"entity": "city", "role": "to", "value": "Los Angeles"}`.
 
     Args:
         json_str: The entity dict as string without "{}".

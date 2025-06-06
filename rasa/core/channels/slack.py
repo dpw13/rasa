@@ -173,7 +173,7 @@ class SlackInput(InputChannel):
                 Slack app and get your Bot User OAuth Access Token
                 `here <https://api.slack.com/slack-apps>`_.
             slack_channel: the string identifier for a channel to which
-                the bot posts, or channel name (e.g. '#bot-test')
+                the bot posts, or channel name (e.g. 'bot-test')
                 If not set, messages will be sent back
                 to the "App" DM channel of your bot's name.
             proxy: A Proxy Server to route your traffic through

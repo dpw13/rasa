@@ -3,7 +3,7 @@ const { remarkProgramOutput } = require('./plugins/program_output');
 const {
   rehypePlugins: themeRehypePlugins,
   remarkPlugins: themeRemarkPlugins,
-} = require('@rasahq/docusaurus-theme-tabula');
+} = require('@docusaurus/theme-classic');
 
 const isDev = process.env.NODE_ENV === 'development';
 const isStaging = process.env.NETLIFY && process.env.CONTEXT === 'staging';
@@ -51,6 +51,7 @@ module.exports = {
     ]
   },
   title: 'Rasa Documentation',
+  onBrokenLinks: 'warn',
   url: SITE_URL,
   baseUrl: BASE_URL,
   favicon: '/img/favicon.ico',
@@ -147,21 +148,17 @@ module.exports = {
   },
   themes: [
     '@docusaurus/theme-search-algolia',
-    '@rasahq/docusaurus-theme-tabula',
+    '@docusaurus/theme-classic',
     path.resolve(__dirname, './themes/theme-custom')
   ],
   plugins: [
-    ['@docusaurus/plugin-content-docs/', {
+    ['@docusaurus/plugin-content-docs', {
       routeBasePath,
       sidebarPath: require.resolve('./sidebars.js'),
       editUrl: 'https://github.com/rasahq/rasa/edit/main/docs/',
       showLastUpdateTime: true,
       showLastUpdateAuthor: true,
-      rehypePlugins: [
-        ...themeRehypePlugins,
-      ],
       remarkPlugins: [
-        ...themeRemarkPlugins,
         remarkProgramOutput,
       ],
       lastVersion: existingVersions[0] || 'current', // aligns / to last versioned folder in production
@@ -182,7 +179,6 @@ module.exports = {
     ],
     ['@docusaurus/plugin-sitemap',
       {
-        cacheTime: 600 * 1000, // 600 sec - cache purge period
         changefreq: 'weekly',
         priority: 0.5,
       }],

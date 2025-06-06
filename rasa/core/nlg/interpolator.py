@@ -11,11 +11,11 @@ structlogger = structlog.get_logger()
 def interpolate_text(response: Text, values: Dict[Text, Text]) -> Text:
     """Interpolate values into responses with placeholders.
 
-    Transform response tags from "{tag_name}" to "{0[tag_name]}" as described here:
+    Transform response tags from `"{tag_name}"` to `"{0[tag_name]}"` as described here:
     https://stackoverflow.com/questions/7934620/python-dots-in-the-name-of-variable-in-a-format-string#comment9695339_7934969
     Block characters, making sure not to allow:
     (a) newline in slot name
-    (b) { or } in slot name
+    (b) `{` or `}` in slot name
 
     Args:
         response: The piece of text that should be interpolated.

@@ -180,8 +180,8 @@ modeling hierarchical intent structure, use the following flags with any tokeniz
   In addition, any character not in: `a-zA-Z0-9_#@&.~:\/?[]()!$*+,;=-` will be
   substituted with whitespace before splitting on whitespace if the character is not
   between numbers:
-  - `"twenty{one"` &#8594; `"twenty"`, `"one"`         ("{"` is not between numbers)
-  - `"20{1"` &#8594; `"20{1"`                          ("{"` *is* between numbers)
+  - `"twenty[{]one" &#8594; "twenty", "one"         ("[{]" is not between numbers)`
+  - `"20[{]1" &#8594; "20{1"                          ("[{]" *is* between numbers)`
 
   Note that:
   - `"name@example.com"` &#8594; `"name@example.com"`
@@ -856,7 +856,8 @@ Note: The `feature-dimension` for sequence and sentence features does not have t
 The above configuration parameters are the ones you should configure to fit your model to your data.
 However, additional parameters exist that can be adapted.
 
-<details><summary>More configurable parameters</summary>
+<details>
+<summary>More configurable parameters</summary>
 
 ```
 +---------------------------+-------------------------+--------------------------------------------------------------+
@@ -1422,7 +1423,8 @@ More details on the parameters can be found on the [scikit-learn documentation p
 The above configuration parameters are the ones you should configure to fit your model to your data.
 However, additional parameters exist that can be adapted.
 
-<details><summary>More configurable parameters</summary>
+<details>
+<summary>More configurable parameters</summary>
 
 ```
 +---------------------------------+------------------+--------------------------------------------------------------+
@@ -2361,7 +2363,8 @@ The `SpacyEntityExtractor` extractor does not provide a `confidence` level and w
   The above configuration parameters are the ones you should configure to fit your model to your data.
   However, additional parameters exist that can be adapted.
 
-  <details><summary>More configurable parameters</summary>
+  <details>
+  <summary>More configurable parameters</summary>
 
   ```
   +---------------------------------+------------------+--------------------------------------------------------------+
@@ -2723,7 +2726,8 @@ Selectors predict a bot response from a set of candidate responses.
 The above configuration parameters are the ones you should configure to fit your model to your data.
 However, additional parameters exist that can be adapted.
 
-<details><summary>More configurable parameters</summary>
+<details>
+<summary>More configurable parameters</summary>
 
 ```text
 +---------------------------------+-------------------+--------------------------------------------------------------+
