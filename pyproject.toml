@@ -21,9 +21,6 @@ keywords = [ "nlp", "machine-learning", "machine-learning-library", "bot", "bots
 include = [ "LICENSE.txt", "README.md", "rasa/shared/core/training_data/visualization.html", "rasa/cli/default_config.yml", "rasa/shared/importers/*", "rasa/utils/schemas/*", "rasa/keys",]
 readme = "README.md"
 license = "Apache-2.0"
-[[tool.poetry.source]]
-name = "internal repository mirroring psycopg binary for macos"
-url = "https://europe-west3-python.pkg.dev/rasa-releases/psycopg-binary/simple/"
 
 [tool.towncrier]
 package = "rasa"
@@ -302,10 +299,6 @@ optional = true
 version = ">=3.8,<4.4"
 extras = [ "tls", "srv",]
 
-[tool.poetry.group.dev.dependencies.pytest-sanic]
-git = "https://github.com/RasaHQ/pytest-sanic"
-branch = "fix_signal_issue"
-
 [tool.poetry.group.dev.dependencies]
 ruff = ">=0.0.255,<0.0.292"
 docker = "^6.0.1"
@@ -342,4 +335,3 @@ analytics-python = "^1.4.0"
 datadog-api-client = "^2.0.0"
 datadog = "^0.45.0"
 types-redis = "^4.3.20"
-httpx = ">=0.23.3"
