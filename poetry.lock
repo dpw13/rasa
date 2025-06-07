@@ -372,18 +372,6 @@ six = ">=1.6.1,<2.0"
 wheel = ">=0.23.0,<1.0"
 
 [[package]]
-name = "async-generator"
-version = "1.10"
-description = "Async generators and context managers for Python 3.5+"
-optional = false
-python-versions = ">=3.5"
-groups = ["dev"]
-files = [
-    {file = "async_generator-1.10-py3-none-any.whl", hash = "sha256:01c7bf666359b4967d2cda0000cc2e4af16a0ae098cbffcb8472fb9e8ad6585b"},
-    {file = "async_generator-1.10.tar.gz", hash = "sha256:6ebb3d106c12920aaae42ccb6f787ef5eefdcdd166ea3d628fa8476abe712144"},
-]
-
-[[package]]
 name = "async-timeout"
 version = "4.0.3"
 description = "Timeout context manager for asyncio programs"
@@ -6684,28 +6672,6 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "pytest-xdist", "six", "virtualenv"]
 
 [[package]]
-name = "pytest-sanic"
-version = "1.9.1"
-description = "a pytest plugin for Sanic"
-optional = false
-python-versions = ">=3.7"
-groups = ["dev"]
-files = []
-develop = false
-
-[package.dependencies]
-async_generator = "^1.10"
-httpx = ">=0.18.1"
-pytest = ">=5.2"
-websockets = ">=9.1,<11.0"
-
-[package.source]
-type = "git"
-url = "https://github.com/RasaHQ/pytest-sanic"
-reference = "fix_signal_issue"
-resolved_reference = "4092e8005fbbdc29b892cd8b09399894d86b1ac7"
-
-[[package]]
 name = "pytest-timeout"
 version = "2.4.0"
 description = "pytest plugin to abort hanging tests"
@@ -10349,7 +10315,7 @@ version = "10.4"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
 optional = false
 python-versions = ">=3.7"
-groups = ["main", "dev"]
+groups = ["main"]
 files = [
     {file = "websockets-10.4-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:d58804e996d7d2307173d56c297cf7bc132c52df27a3efaac5e8d43e36c21c48"},
     {file = "websockets-10.4-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:bc0b82d728fe21a0d03e65f81980abbbcb13b5387f733a1a870672c5be26edab"},
@@ -10889,4 +10855,4 @@ transformers = ["sentencepiece", "transformers"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "963615c5ffcb4ab729aa9be0876bb0d2aa705045b8529fe8ed5b8256d563a573"
+content-hash = "6bf05d0181ae0b1eed9440063ae7f0813304d5bfc3ca8d9db149d6e0cf32c2f6"
