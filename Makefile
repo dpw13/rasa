@@ -71,7 +71,6 @@ install-mitie:
 
 install-full: install-mitie
 	poetry install -E full
-	spacy download en_core_web_md
 
 install-docs:
 	cd docs/ && yarn install

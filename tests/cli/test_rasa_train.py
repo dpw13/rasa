@@ -180,7 +180,8 @@ def test_train_skip_on_model_not_changed(
 
     assert rasa.utils.io.are_directories_equal(old_dir, new_dir)
 
-
+# This test fails because some of the serialized JSON files are generated from a set() and
+# may serialize in a slightly different arbitrary order.
 def test_train_force(
     run_in_simple_project_with_model: Callable[..., RunResult],
     tmp_path_factory: TempPathFactory,

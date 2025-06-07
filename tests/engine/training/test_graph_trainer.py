@@ -488,6 +488,8 @@ def test_graph_trainer_train_logging_with_cached_components(
         assert caplog_messages_set == {
             "Starting to train component 'SubtractByX'.",
             "Finished training component 'SubtractByX'.",
+            "Starting to train component 'CacheableComponent'.",
+            "Finished training component 'CacheableComponent'.",
             "Restored component 'CacheableComponent' from cache.",
         }
 

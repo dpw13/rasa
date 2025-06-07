@@ -17,6 +17,8 @@ import rasa.shared.utils.io
 if TYPE_CHECKING:
     from prompt_toolkit.validation import Validator
 
+logger = logging.getLogger(__name__)
+
 
 class WriteRow(Protocol):
     """Describes a csv writer supporting a `writerow` method (workaround for typing)."""
@@ -254,7 +256,11 @@ def are_directories_equal(dir1: Path, dir2: Path) -> bool:
         dir1, dir2, dirs_cmp.common_files, shallow=False
     )
 
-    if mismatches or errors:
+    if mismatches:
+        logger.debug("Dirs '%s' and '%s' differ in files %s", dir1, dir2, mismatches)
+        return False
+    if errors:
+        logger.debug("Dirs '%s' and '%s' have non-regular files %s", dir1, dir2, errors)
         return False
 
     for common_dir in dirs_cmp.common_dirs:

@@ -1,0 +1,6 @@
+When running tests with a fresh container the workflow is:
+
+make install-full
+make prepare-spacy
+make prepare-mitie
+make prepare-transformers

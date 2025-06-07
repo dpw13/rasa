@@ -738,7 +738,8 @@ class RulePolicy(MemoizationPolicy):
             | self._handling_loop_sources(domain)
         )
         # set is not json serializable, so convert to list
-        return list(all_rules - rules_used_in_stories)
+        # Sort list to ensure reproducible serialization
+        return sorted(list(all_rules - rules_used_in_stories))
 
     def _create_lookup_from_trackers(
         self,
