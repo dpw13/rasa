@@ -145,7 +145,7 @@ async def test_agent_wrong_use_of_load():
         # should fail properly
         Agent.load(training_data_file)
 
-
+# TODO: fails due to sanic signaling issue
 async def test_agent_with_model_server_in_thread(
     model_server: TestClient, domain: Domain
 ):

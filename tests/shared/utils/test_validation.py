@@ -4,6 +4,7 @@ from threading import Thread
 import pytest
 
 from pep440_version_utils import Version
+from packaging.version import InvalidVersion
 
 from rasa.shared.exceptions import YamlException, SchemaValidationError
 import rasa.shared.utils.io
@@ -325,9 +326,10 @@ async def test_invalid_training_data_format_version_warns():
     invalid_version_1 = {KEY_TRAINING_DATA_FORMAT_VERSION: 2.0}
     invalid_version_2 = {KEY_TRAINING_DATA_FORMAT_VERSION: "Rasa"}
 
-    for version in [invalid_version_1, invalid_version_2]:
-        with pytest.warns(UserWarning):
-            assert validation_utils.validate_training_data_format_version(version, "")
+    with pytest.warns(UserWarning):
+        assert validation_utils.validate_training_data_format_version(invalid_version_1, "")
+    with pytest.raises(InvalidVersion):
+        assert validation_utils.validate_training_data_format_version(invalid_version_2, "")
 
 
 def test_concurrent_schema_validation():

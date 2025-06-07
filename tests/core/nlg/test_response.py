@@ -369,7 +369,7 @@ async def test_nlg_conditional_response_variations_with_diff_slot_types(
 
 async def test_nlg_non_matching_channel():
     domain = Domain.from_yaml(
-        """
+        f"""
     version: "{LATEST_TRAINING_DATA_FORMAT_VERSION}"
     responses:
         utter_hi:

@@ -69,7 +69,7 @@ def test_slot_mapping_intent_is_desired(domain: Domain):
 
 def test_slot_mappings_ignored_intents_during_active_loop():
     domain = Domain.from_yaml(
-        """
+        f"""
     version: "{LATEST_TRAINING_DATA_FORMAT_VERSION}"
     intents:
     - greet

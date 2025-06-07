@@ -8,6 +8,7 @@ import textwrap
 from pathlib import Path
 from typing import Text, Dict, Union, Any
 from unittest.mock import Mock
+from tarfile import ReadError
 
 import pytest
 from _pytest.capture import CaptureFixture
@@ -803,7 +804,7 @@ def test_model_finetuning_nlu_with_default_epochs(
     assert metadata.train_schema.nodes["train_DIETClassifier5"].config[EPOCHS] == 3
 
 
-@pytest.mark.parametrize("model_to_fine_tune", ["invalid-path-to-model", "."])
+@pytest.mark.parametrize("model_to_fine_tune", ["invalid-path-to-model", ".."])
 def test_model_finetuning_with_invalid_model(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
@@ -832,7 +833,7 @@ def test_model_finetuning_with_invalid_model(
     assert "No model for finetuning found" in output
 
 
-@pytest.mark.parametrize("model_to_fine_tune", ["invalid-path-to-model", "."])
+@pytest.mark.parametrize("model_to_fine_tune", ["invalid-path-to-model", ".."])
 def test_model_finetuning_with_invalid_model_core(
     tmp_path: Path,
     domain_path: Text,
@@ -857,7 +858,7 @@ def test_model_finetuning_with_invalid_model_core(
     assert "No model for finetuning found" in capsys.readouterr().out
 
 
-@pytest.mark.parametrize("model_to_fine_tune", ["invalid-path-to-model", "."])
+@pytest.mark.parametrize("model_to_fine_tune", ["invalid-path-to-model", ".."])
 def test_model_finetuning_with_invalid_model_nlu(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,

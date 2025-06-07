@@ -198,7 +198,7 @@ def test_yaml_writer_stories_to_yaml(domain: Domain):
 def test_yaml_writer_stories_to_yaml_with_null_entities(domain: Domain):
     writer = YAMLStoryWriter()
     stories = textwrap.dedent(
-        """
+        f"""
     version: "{LATEST_TRAINING_DATA_FORMAT_VERSION}"
     stories:
     - story: happy path

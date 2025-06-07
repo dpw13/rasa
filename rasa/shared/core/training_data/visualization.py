@@ -41,7 +41,7 @@ START_NODE_ID = 0
 END_NODE_ID = -1
 TMP_NODE_ID = -2
 
-VISUALIZATION_TEMPLATE_PATH = "/visualization.html"
+VISUALIZATION_TEMPLATE_PATH = "visualization.html"
 
 
 class UserMessageGenerator:
@@ -315,7 +315,7 @@ def persist_graph(graph: "networkx.Graph", output_file: Text) -> None:
 
     expg = nx.nx_pydot.to_pydot(graph)
 
-    ref = resources.files(__name__).joinpath(VISUALIZATION_TEMPLATE_PATH)
+    ref = resources.files("rasa.shared.core.training_data").joinpath(VISUALIZATION_TEMPLATE_PATH)
     with resources.as_file(ref) as path:
         template = rasa.shared.utils.io.read_file(path)
 

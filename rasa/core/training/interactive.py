@@ -1631,7 +1631,7 @@ def start_visualization(image_path: Text, port: int) -> None:
         return response.text("Not found", status=404)
 
     # noinspection PyUnusedLocal
-    @app.route(VISUALIZATION_TEMPLATE_PATH, methods=["GET"])
+    @app.route(f"/{VISUALIZATION_TEMPLATE_PATH}", methods=["GET"])
     async def visualisation_html(request: Request) -> HTTPResponse:
         return await response.file(visualization.visualization_html_path())
 
