@@ -36,6 +36,7 @@ The following example shows a demo of a chatbot using an LLM to rephrase static
 response templates. The first example is from an assistant without rephrasing.
 The second example is exactly the same assistant, with rephrasing enabled.
 
+```
 <Chat caption="No rephrasing: Chatbot handling out of scope requests">
   <ChatUserText>can you order me a pizza?</ChatUserText>
   <ChatBotText>
@@ -46,10 +47,12 @@ The second example is exactly the same assistant, with rephrasing enabled.
     Sorry, I am not sure how to respond to that. Type "help" for assistance.
   </ChatBotText>
 </Chat>
+```
 
 Rephrasing messages can significantly improve the user experience and make users
 feel understood:
 
+```
 <Chat caption="LLM rephrasing: Chatbot with improved out of scope responses">
   <ChatUserText>can you order me a pizza?</ChatUserText>
   <ChatBotText>
@@ -63,6 +66,7 @@ feel understood:
     information.
   </ChatBotText>
 </Chat>
+```
 
 Behind the scenes, the conversation state is the same in both examples. The
 difference is that the LLM is used to rephrase the bot's response in the second
@@ -204,13 +208,16 @@ temperatures result in more variable responses.
 #### Example using different temperatures
 
 - no rephrasing enabled:
+```
   <Chat caption="original conversation">
     <ChatUserText>can you order me a pizza?</ChatUserText>
     <ChatBotText>
       Sorry, I am not sure how to respond to that. Type "help" for assistance.
     </ChatBotText>
   </Chat>
+```
 - rephrasing with temperature 0.3:
+```
   <Chat caption="temperature 0.3">
     <ChatUserText>can you order me a pizza?</ChatUserText>
     <ChatBotText>
@@ -218,7 +225,9 @@ temperatures result in more variable responses.
       information?
     </ChatBotText>
   </Chat>
+```
 - rephrasing with temperature 0.7:
+```
   <Chat caption="temperature 0.7">
     <ChatUserText>can you order me a pizza?</ChatUserText>
     <ChatBotText>
@@ -226,7 +235,9 @@ temperatures result in more variable responses.
       "help".
     </ChatBotText>
   </Chat>
+```
 - rephrasing with temperature 2.0:
+```
   <Chat caption="temperature 2.0">
     <ChatUserText>can you order me a pizza?</ChatUserText>
     <ChatBotText>
@@ -234,7 +245,8 @@ temperatures result in more variable responses.
       our help faq instead?
     </ChatBotText>
   </Chat>
-  This examples shows that the temperature is set to high: The response will lead
+```
+  This examples shows that the temperature is set too high: The response will lead
   to a user response that is likely not covered by the training data.
 
 ### Prompt
