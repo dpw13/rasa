@@ -1,10 +1,13 @@
 import sys
-import pkg_resources
-
+from importlib import metadata
 
 def test_tensorflow_text_install():
-    installed_packages_list = [i.key for i in list(pkg_resources.working_set)]
-    tf_text_installed = "tensorflow-text" in installed_packages_list
+
+    try:
+        metadata.metadata("tensorflow-text")
+        tf_text_installed = True
+    except metadata.PackageNotFoundError:
+        tf_text_installed = False
 
     if sys.platform == "win32":
         assert not tf_text_installed

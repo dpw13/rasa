@@ -6,6 +6,7 @@ import logging
 import math
 from enum import Enum
 from typing import Dict, Text, Any, Tuple, Type, Optional, List, Callable, Set, Union
+from importlib import resources
 
 import dataclasses
 
@@ -15,6 +16,7 @@ from rasa.core.featurizers.precomputation import (
 )
 from rasa.plugin import plugin_manager
 from rasa.shared.exceptions import FileNotFoundException
+import rasa.shared.utils.io
 from rasa.core.policies.ensemble import DefaultPolicyPredictionEnsemble
 
 from rasa.engine.graph import (
@@ -1008,8 +1010,6 @@ class DefaultV1Recipe(Recipe):
             The resulting configuration including both the provided and
             the automatically configured keys.
         """
-        import pkg_resources
-
         if keys_to_configure:
             logger.debug(
                 f"The provided configuration does not contain the key(s) "
@@ -1019,8 +1019,9 @@ class DefaultV1Recipe(Recipe):
 
         filename = "config_files/default_config.yml"
 
-        default_config_file = pkg_resources.resource_filename(__name__, filename)
-        default_config = rasa.shared.utils.io.read_config_file(default_config_file)
+        ref = resources.files("rasa.engine.recipes").joinpath(filename)
+        with resources.as_file(ref) as cfg:
+            default_config = rasa.shared.utils.io.read_config_file(cfg)
 
         config = copy.deepcopy(config)
         for key in keys_to_configure:

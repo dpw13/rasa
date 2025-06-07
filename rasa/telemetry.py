@@ -15,6 +15,7 @@ import typing
 from typing import Any, Callable, Dict, List, Optional, Text
 import uuid
 import requests
+from importlib import resources
 from terminaltables import SingleTable
 
 import rasa
@@ -251,7 +252,6 @@ def _fetch_write_key(tool: Text, environment_variable: Text) -> Optional[Text]:
     Returns:
         write key, if a key was present.
     """
-    import pkg_resources
     from rasa import __name__ as name
 
     if os.environ.get(environment_variable):
@@ -259,11 +259,10 @@ def _fetch_write_key(tool: Text, environment_variable: Text) -> Optional[Text]:
         # overwrite any key provided as part of the package (`keys` file)
         return os.environ.get(environment_variable)
 
-    write_key_path = pkg_resources.resource_filename(name, "keys")
 
     # noinspection PyBroadException
     try:
-        with open(write_key_path) as f:
+        with resources.open_text(name, "keys", encoding="utf-8") as f:
             return json.load(f).get(tool)
     except Exception:  # skipcq:PYL-W0703
         return None

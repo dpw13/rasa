@@ -1,6 +1,7 @@
 from collections import defaultdict, deque
 
 import random
+from importlib import resources
 from typing import (
     Any,
     Text,
@@ -308,19 +309,15 @@ def _replace_edge_labels_with_nodes(
             graph.add_edge(next_id, e, **{"class": d.get("class", "")})
 
 
-def visualization_html_path() -> Text:
-    import pkg_resources
-
-    return pkg_resources.resource_filename(__name__, VISUALIZATION_TEMPLATE_PATH)
-
-
 def persist_graph(graph: "networkx.Graph", output_file: Text) -> None:
     """Plots the graph and persists it into a html file."""
     import networkx as nx
 
     expg = nx.nx_pydot.to_pydot(graph)
 
-    template = rasa.shared.utils.io.read_file(visualization_html_path())
+    ref = resources.files(__name__).joinpath(VISUALIZATION_TEMPLATE_PATH)
+    with resources.as_file(ref) as path:
+        template = rasa.shared.utils.io.read_file(path)
 
     # Insert graph into template
     template = template.replace("// { is-client }", "isClient = true", 1)
