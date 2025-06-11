@@ -81,17 +81,14 @@ class CallbackNaturalLanguageGenerator(NaturalLanguageGenerator):
 
         body = nlg_request_format(utter_action, tracker, output_channel, **kwargs)
 
-        logger.debug(
-            "Requesting NLG for {} from {}."
-            "The request body is {}."
-            "".format(utter_action, self.nlg_endpoint.url, json.dumps(body))
-        )
+        logger.debug("Requesting NLG for %s from %s.", utter_action, self.nlg_endpoint.url)
+        logger.debug("The request body is %s.", json.dumps(body))
 
         response = await self.nlg_endpoint.request(
             method="post", json=body, timeout=DEFAULT_REQUEST_TIMEOUT
         )
 
-        logger.debug(f"Received NLG response: {json.dumps(response)}")
+        logger.debug("Received NLG response: %s", response)
 
         if isinstance(response, dict) and self.validate_response(response):
             return response
