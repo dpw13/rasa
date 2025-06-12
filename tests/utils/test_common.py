@@ -177,7 +177,7 @@ def test_override_defaults():
     expected_config = {"nested-dict": {"key1": "value1", "key2": "override-value2"}}
     assert updated_config == expected_config
 
-
+# May be flaky due to interaction with other running tests
 def test_cli_missing_log_level_default_used():
     """Test CLI without log level parameter or env var uses default."""
     configure_logging_and_warnings()

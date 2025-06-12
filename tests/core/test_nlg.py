@@ -10,7 +10,6 @@ from rasa.core.nlg.response import TemplatedNaturalLanguageGenerator
 from rasa.utils.endpoints import EndpointConfig, read_endpoint_config
 from rasa.core.agent import Agent
 
-
 def nlg_app(base_url="/"):
 
     app = Sanic("test_nlg")
@@ -57,17 +56,29 @@ def nlg_app(base_url="/"):
     return app
 
 
+class SanicTestEndpoint:
+    def __init__(self, app: Sanic, base_url="/"):
+        self.client = app.asgi_client
+        self.url = base_url
+        self.type = "callback"
+
+    async def request(self, **kwargs):
+        # Rename method argument for SanicTestClient
+        kwargs.pop('method')
+        # asgi requests return request, response tuple
+        _, rsp = await self.client.post(url=self.url, **kwargs)
+        # EndpointConfig returns parsed json, not just the response object
+        return rsp.json
+
 # noinspection PyShadowingNames
 @pytest.fixture()
-def http_nlg(loop, sanic_client):
-    return loop.run_until_complete(sanic_client(nlg_app()))
+def nlg_ep():
+    return SanicTestEndpoint(nlg_app())
 
-# TODO: Fails due to sanic signaling issue
-async def test_nlg(http_nlg, trained_rasa_model: Text):
+async def test_nlg(nlg_ep, trained_rasa_model: Text):
     sender = str(uuid.uuid1())
 
-    nlg_endpoint = EndpointConfig.from_dict({"url": http_nlg.make_url("/")})
-    agent = Agent.load(trained_rasa_model, generator=nlg_endpoint)
+    agent = Agent.load(trained_rasa_model, generator=nlg_ep)
 
     response = await agent.handle_text("/greet", sender_id=sender)
     assert len(response) == 1
