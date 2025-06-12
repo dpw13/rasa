@@ -95,22 +95,22 @@ absl-py = ">=0.9"
 apscheduler = ">=3.6"
 tqdm = ">=4.31"
 networkx = ">=2.4"
-fbmessenger = "~6.0.0"
+fbmessenger = ">=6.0.0"
 pykwalify = ">=1.7"
 coloredlogs = ">=10"
 ruamel-yaml = ">=0.16.5"
 pyyaml = ">=6.0"
 twilio = ">=6.26"
 webexteamssdk = ">=1.1.1"
-mattermostwrapper = "~2.2"
+mattermostwrapper = ">=2.2"
 rocketchat_API = ">=0.6.31"
 colorhash = ">=1.0.2"
 jsonschema = ">=3.2"
 packaging = ">=21.0"
 pytz = ">=2019.1"
 rasa-sdk = ">=3.7.0"
-colorclass = "~2.2"
-terminaltables = "~3.1.0"
+colorclass = ">=2.2"
+terminaltables = ">=3.1.0"
 sanic = ">=22.12.0"
 sanic-cors = ">=2.0.0"
 sanic-jwt = ">=1.6.0"
@@ -124,9 +124,9 @@ python-socketio = ">=4.4"
 python-engineio = ">=4,<6,!=5.0.0"
 pydot = ">=1.4"
 SQLAlchemy = ">=1.4.0,<2.0"
-sklearn-crfsuite = "~0.3"
+sklearn-crfsuite = ">=0.3"
 psycopg2-binary = ">=2.8.2"
-python-dateutil = "~2.8"
+python-dateutil = ">=2.8"
 protobuf = ">=4.23.3"
 tensorflow_hub = ">=0.13.0"
 setuptools = ">=65.5.1"
@@ -147,7 +147,7 @@ slack-sdk = ">=3.19.2"
 confluent-kafka = ">=1.9.2"
 portalocker = ">=2.7.0"
 structlog = ">=23.1.0"
-structlog-sentry = ">=2.0.2"
+structlog-sentry = ">=2.0.2,<2.2"
 # pin dnspython to avoid dependency incompatibility
 # in order to fix https://rasahq.atlassian.net/browse/ATO-1419
 dnspython = "2.3.0"
@@ -268,7 +268,7 @@ version = ">=0.4.4"
 markers = "sys_platform == 'win32'"
 
 [tool.poetry.dependencies.tensorflow-metal]
-version = "0.8.0"
+version = ">=0.8.0"
 markers = "sys_platform == 'darwin' and platform_machine == 'arm64'"
 optional = true
 
@@ -277,7 +277,7 @@ version = ">=2.12.0"
 markers = "sys_platform != 'win32' and platform_machine != 'arm64' and platform_machine != 'aarch64'"
 
 [tool.poetry.dependencies."github3.py"]
-version = "~3.2.0"
+version = ">=3.2.0"
 optional = true
 
 [tool.poetry.dependencies.transformers]
@@ -289,7 +289,7 @@ version = ">=1.13.1"
 optional = true
 
 [tool.poetry.dependencies.sentencepiece]
-version = "~0.1.99"
+version = ">=0.1.99"
 optional = true
 extras = [ "sentencepiece",]
 
