@@ -7,7 +7,7 @@ import os
 from collections import defaultdict
 from typing import List, Text, Dict, Tuple, Union, Optional, Any, TYPE_CHECKING
 
-from keras.utils import tf_utils
+from keras.src.utils import tf_utils, set_random_seed
 from keras import Model
 
 from rasa.shared.constants import DIAGNOSTIC_DATA
@@ -104,7 +104,7 @@ class RasaModel(Model):
         np.random.seed(self.random_seed)
         tf.random.set_seed(self.random_seed)
         tf.experimental.numpy.random.seed(self.random_seed)
-        tf.keras.utils.set_random_seed(self.random_seed)
+        set_random_seed(self.random_seed)
         # Set a fixed value for the hash seed
         os.environ["PYTHONHASHSEED"] = str(self.random_seed)
 

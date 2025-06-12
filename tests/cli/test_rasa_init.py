@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Callable
 from _pytest.pytester import RunResult
 from _pytest.monkeypatch import MonkeyPatch
+from prompt_toolkit.input.defaults import create_pipe_input
 
 from rasa.cli import scaffold
 from tests.conftest import enable_cache
@@ -97,7 +98,8 @@ def test_train_data_in_project_dir(monkeypatch: MonkeyPatch, tmp_path: Path):
     # Cache dir is auto patched to be a temp directory, this makes it
     # go back to local project folder so we can test it is created correctly.
     with enable_cache(Path(".rasa", "cache")):
-        mock_stdin([])
+        with create_pipe_input() as inp:
+            mock_stdin([], inp)
         scaffold.init_project(args, str(new_project_folder_path))
     assert os.getcwd() == str(new_project_folder_path)
     assert os.path.exists(".rasa/cache")
