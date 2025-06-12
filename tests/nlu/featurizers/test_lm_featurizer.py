@@ -68,7 +68,7 @@ def create_pretrained_transformers_config(
         model_weights: model weights name
     """
     if skip_on_CI_with_bert(model_name, model_weights):
-        pytest.skip(
+        pytest.mark.skip(
             "Reason: this model is too large, loading it results in"
             "crashing of GH action workers."
         )

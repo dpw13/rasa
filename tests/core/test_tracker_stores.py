@@ -14,7 +14,7 @@ import uuid
 from _pytest.capture import CaptureFixture
 from _pytest.logging import LogCaptureFixture
 from _pytest.monkeypatch import MonkeyPatch
-from moto import mock_dynamodb
+from moto import mock_aws
 from pymongo.errors import OperationFailure
 
 from rasa.core.agent import Agent
@@ -84,14 +84,14 @@ def test_get_or_create():
 
 
 # noinspection PyPep8Naming
-@mock_dynamodb
+@mock_aws
 def test_dynamo_get_or_create():
     get_or_create_tracker_store(DynamoTrackerStore(test_domain))
 
 
 # No clue why this test appears to think that pytest-asyncio is missing.
-@pytest.skip("Failure to find pytest-asyncio")
-@mock_dynamodb
+#@pytest.mark.skip(reason="Failure to find pytest-asyncio")
+@mock_aws
 async def test_dynamo_tracker_floats():
     conversation_id = uuid.uuid4().hex
 
@@ -745,8 +745,8 @@ def test_session_scope_error(
     [
         (f"{PGDialect.name}://admin:pw@localhost:5432/rasa", True),
         (f"{SQLiteDialect.name}:///", False),
-        (URL(PGDialect.name), True),
-        (URL(SQLiteDialect.name), False),
+        (URL.create(PGDialect.name), True),
+        (URL.create(SQLiteDialect.name), False),
     ],
 )
 def test_is_postgres_url(url: Union[Text, URL], is_postgres_url: bool):

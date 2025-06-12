@@ -5,7 +5,7 @@ from typing import Any, Text
 
 import boto3
 import pytest
-from moto import mock_iam, mock_s3
+from moto import mock_iam, mock_aws
 from pytest import MonkeyPatch
 
 from rasa.core.agent import Agent
@@ -79,7 +79,7 @@ def aws_environment_variables(
     os.environ["TEST_SERVER_MODE"] = "true"
 
 
-@mock_s3
+@mock_aws
 def test_load_model_from_aws_remote_storage(
     monkeypatch: MonkeyPatch,
     aws_environment_variables: Any,
