@@ -91,7 +91,7 @@ class DummyImporter(TrainingDataImporter):
 def _test_validation_warnings_with_default_configs(
     training_data: TrainingData,
     component_types: List[Type],
-    warnings: Optional[List[Text]] = None,
+    warning_list: Optional[List[Text]] = None,
 ):
     dummy_importer = DummyImporter(training_data=training_data)
     graph_schema = GraphSchema(
@@ -107,19 +107,20 @@ def _test_validation_warnings_with_default_configs(
         }
     )
     validator = DefaultV1RecipeValidator(graph_schema)
-    if not warnings:
-        with pytest.warns(None) as records:
+    if not warning_list:
+        with warnings.catch_warnings(record=True) as records:
+            warnings.simplefilter("error")
             validator.validate(dummy_importer)
             assert len(records) == 0, [warning.message for warning in records.list]
     else:
-        with pytest.warns(None) as records:
+        with warnings.catch_warnings(record=True) as records:
             validator.validate(dummy_importer)
-        assert len(records) == len(warnings), ", ".join(
+        assert len(records) == len(warning_list), ", ".join(
             warning.message.args[0] for warning in records
         )
         assert [
             re.match(warning.message.args[0], expected_warning)
-            for warning, expected_warning in zip(records, warnings)
+            for warning, expected_warning in zip(records, warning_list)
         ]
 
 
@@ -148,7 +149,7 @@ def test_nlu_warn_if_training_examples_with_intent_response_key_are_unused(
         ),
     ]
     training_data = TrainingData(training_examples=messages)
-    warnings = (
+    warning_list = (
         (
             [
                 "You have defined training data with examples "
@@ -163,7 +164,7 @@ def test_nlu_warn_if_training_examples_with_intent_response_key_are_unused(
     if component_type:
         component_types.append(component_type)
     _test_validation_warnings_with_default_configs(
-        training_data=training_data, component_types=component_types, warnings=warnings
+        training_data=training_data, component_types=component_types, warning_list=warning_list
     )
 
 
@@ -187,7 +188,7 @@ def test_nlu_warn_if_training_examples_with_entities_are_unused(
         ),
     ]
     training_data = TrainingData(training_examples=messages)
-    warnings = (
+    warning_list = (
         (
             [
                 "You have defined training data consisting of entity examples, "
@@ -201,7 +202,7 @@ def test_nlu_warn_if_training_examples_with_entities_are_unused(
     if component_type:
         component_types.append(component_type)
     _test_validation_warnings_with_default_configs(
-        training_data=training_data, component_types=component_types, warnings=warnings
+        training_data=training_data, component_types=component_types, warning_list=warning_list
     )
 
 
@@ -240,7 +241,7 @@ def test_nlu_warn_if_training_examples_with_entity_roles_are_unused(
         for i in range(2)
     ]
     training_data = TrainingData(training_examples=messages)
-    warnings = (
+    warning_list = (
         [
             "You have defined training data with entities that have roles/groups, "
             "but your NLU configuration"
@@ -252,7 +253,7 @@ def test_nlu_warn_if_training_examples_with_entity_roles_are_unused(
     if component_type:
         component_types.append(component_type)
     _test_validation_warnings_with_default_configs(
-        training_data=training_data, component_types=component_types, warnings=warnings
+        training_data=training_data, component_types=component_types, warning_list=warning_list
     )
 
 
@@ -270,11 +271,11 @@ def test_nlu_warn_if_regex_features_are_not_used(
     component_types = [WhitespaceTokenizer]
     if component_type:
         component_types.append(component_type)
-    warnings = (
+    warning_list = (
         ["You have defined training data with regexes, but your NLU"] if warns else None
     )
     _test_validation_warnings_with_default_configs(
-        training_data=training_data, component_types=component_types, warnings=warnings
+        training_data=training_data, component_types=component_types, warning_list=warning_list
     )
 
 
@@ -324,7 +325,7 @@ def test_nlu_warn_if_lookup_table_is_not_used(
     _test_validation_warnings_with_default_configs(
         training_data=training_data,
         component_types=component_types,
-        warnings=expected_warnings,
+        warning_list=expected_warnings,
     )
 
 
@@ -394,7 +395,8 @@ def test_nlu_warn_if_lookup_table_and_crf_extractor_pattern_feature_mismatch(
         with pytest.warns(UserWarning, match=match):
             validator.validate(importer)
     else:
-        with pytest.warns(None) as records:
+        with warnings.catch_warnings(record=True) as records:
+            warnings.simplefilter("error")
             validator.validate(importer)
             assert len(records) == 0
 
@@ -434,7 +436,7 @@ def test_nlu_warn_if_entity_synonyms_unused(
         with pytest.warns(UserWarning, match=match):
             validator.validate(importer)
     else:
-        with pytest.warns(None) as records:
+        with warnings.catch_warnings(record=True) as records:
             validator.validate(importer)
             assert len(records) == 0
 
@@ -521,7 +523,7 @@ def test_nlu_warn_of_competing_extractors(
         with pytest.warns(UserWarning, match=".*defined multiple entity extractors"):
             nlu_validator.validate(importer)
     else:
-        with pytest.warns(None) as records:
+        with warnings.catch_warnings(record=True) as records:
             nlu_validator.validate(importer)
         assert len(records) == 0
 
@@ -592,7 +594,7 @@ def test_nlu_warn_of_competition_with_regex_extractor(
         ):
             validator.validate(importer)
     else:
-        with warnings.catch_warnings() as records:
+        with warnings.catch_warnings(record=True) as records:
             validator.validate(importer)
 
         if records is not None:
@@ -785,7 +787,7 @@ def test_core_warn_if_no_rule_policy(
         ) as records:
             validator.validate(importer)
     else:
-        with pytest.warns(None) as records:
+        with warnings.catch_warnings(record=True) as records:
             validator.validate(importer)
         assert len(records) == 0
 
@@ -922,7 +924,7 @@ def test_core_warn_if_policy_priorities_are_not_unique(
         with pytest.warns(UserWarning, match=expected_message):
             validator.validate(importer)
     else:
-        with pytest.warns(None) as records:
+        with warnings.catch_warnings(record=True) as records:
             validator.validate(importer)
         assert len(records) == 0
 
@@ -1033,7 +1035,7 @@ def test_no_warnings_with_default_project(tmp_path: Path):
     )
     validator = DefaultV1RecipeValidator(graph_config.train_schema)
 
-    with warnings.catch_warnings() as records:
+    with warnings.catch_warnings(record=True) as records:
         validator.validate(importer)
 
     if records is not None:

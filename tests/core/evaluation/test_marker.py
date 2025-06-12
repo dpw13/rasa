@@ -2,6 +2,7 @@ import csv
 from typing import List, Optional, Set, Text, Tuple, Type, Any
 import itertools
 from pathlib import Path
+import warnings
 
 import pytest
 import numpy as np
@@ -591,7 +592,8 @@ def test_domain_validation_with_invalid_marker(
     )
 
     domain = Domain.empty()
-    with pytest.warns(None):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         is_valid = marker.validate_against_domain(domain)
     assert not is_valid
 

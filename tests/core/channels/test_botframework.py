@@ -3,6 +3,7 @@ import time
 from http import HTTPStatus
 from unittest import mock
 from unittest.mock import Mock
+import warnings
 
 import freezegun
 import jwt
@@ -69,7 +70,8 @@ def test_successful_jwt_signature_verification(
         headers={"kid": "key_id", "alg": "RS256"},
     )
 
-    with pytest.warns(None):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         resp = bot_framework_input._validate_auth(f"Bearer {encoded}")
         assert resp is None
 

@@ -4,6 +4,7 @@ from http import HTTPStatus
 import os.path
 import shutil
 import textwrap
+import warnings
 from pathlib import Path
 
 import freezegun
@@ -168,9 +169,9 @@ async def test_default_intent_recognized(
 ):
     message = UserMessage(f"/{default_intent}")
     parsed = await default_processor.parse_message(message)
-    with pytest.warns(None) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         default_processor._check_for_unseen_features(parsed)
-    assert len(record) == 0
 
 
 async def test_http_parsing(trained_default_agent_model: Text, domain: Domain):

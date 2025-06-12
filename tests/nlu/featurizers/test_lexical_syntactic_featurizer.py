@@ -1,8 +1,9 @@
-import numpy as np
 import pytest
 import re
+import warnings
 from typing import Text, Dict, Any, Callable, List, Optional, Union
 
+import numpy as np
 from rasa.engine.graph import ExecutionContext
 from rasa.engine.storage.storage import ModelStorage
 from rasa.engine.storage.resource import Resource
@@ -318,7 +319,7 @@ def test_warn_if_part_of_speech_features_cannot_be_computed(
     assert not message.features
 
     # process
-    with pytest.warns(None) as records:
+    with warnings.catch_warnings(record=True) as records:
         featurizer.process([message])
     assert len(records) == 0
     assert len(message.features) == 1

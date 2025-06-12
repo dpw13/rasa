@@ -154,7 +154,7 @@ async def test_agent_wrong_use_of_load():
 # TODO: Getting teardown error
 # I'm sick of debugging these asyncio issues with multiple event loops between pytest-async
 # and sanic. The functionality works, it just throws an error during teardown.
-@pytest.skip
+@pytest.mark.skip
 def test_agent_with_model_server_in_thread(
     loop, model_server: ReusableClient, domain: Domain
 ):
@@ -194,7 +194,7 @@ def test_agent_with_model_server_in_thread(
 
 
 # See above
-@pytest.skip
+@pytest.mark.skip
 def test_wait_time_between_pulls_without_interval(
     loop, model_server: ReusableClient, monkeypatch: MonkeyPatch
 ):

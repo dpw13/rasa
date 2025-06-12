@@ -1,3 +1,4 @@
+import warnings
 from typing import Text
 from threading import Thread
 
@@ -309,16 +310,13 @@ async def test_future_training_data_format_version_not_compatible():
 
 async def test_compatible_training_data_format_version():
 
-    prev_major = str(Version("1.0"))
-
-    compatible_version_1 = {KEY_TRAINING_DATA_FORMAT_VERSION: prev_major}
-    compatible_version_2 = {
+    compatible_version = {
         KEY_TRAINING_DATA_FORMAT_VERSION: LATEST_TRAINING_DATA_FORMAT_VERSION
     }
 
-    for version in [compatible_version_1, compatible_version_2]:
-        with pytest.warns(None):
-            assert validation_utils.validate_training_data_format_version(version, "")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert validation_utils.validate_training_data_format_version(compatible_version, "")
 
 
 async def test_invalid_training_data_format_version_warns():

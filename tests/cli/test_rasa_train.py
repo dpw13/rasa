@@ -182,7 +182,7 @@ def test_train_skip_on_model_not_changed(
 
 # This test fails because some of the serialized JSON files are generated from a set() and
 # may serialize in a slightly different arbitrary order.
-@pytest.skip
+@pytest.mark.skip
 def test_train_force(
     run_in_simple_project_with_model: Callable[..., RunResult],
     tmp_path_factory: TempPathFactory,

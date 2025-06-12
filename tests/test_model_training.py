@@ -5,6 +5,7 @@ import shutil
 import tempfile
 import os
 import textwrap
+import warnings
 from pathlib import Path
 from typing import Text, Dict, Union, Any
 from unittest.mock import Mock
@@ -177,7 +178,8 @@ def test_train_nlu_with_responses_and_domain_no_warns(tmp_path: Path):
     data_path = "data/test_nlu_no_responses/nlu_no_responses.yml"
     domain_path = "data/test_nlu_no_responses/domain_with_only_responses.yml"
 
-    with pytest.warns(None) as records:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         rasa.model_training.train_nlu(
             "data/test_config/config_response_selector_minimal.yml",
             data_path,

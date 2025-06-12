@@ -3,6 +3,7 @@ import logging
 import textwrap
 from pathlib import Path
 from typing import Union, Text, List, Optional, Type
+import warnings
 
 import aio_pika.exceptions
 import aiormq.exceptions
@@ -86,14 +87,26 @@ def test_pika_queues_from_args(
     expected: List[Text],
     warning: Optional[Type[Warning]],
 ):
-    with pytest.warns(warning):
-        pika_processor = PikaEventBroker(
-            "host",
-            "username",
-            "password",
-            queues=queues_arg,
-            get_message=lambda: ("", None),
-        )
+    if warning:
+        with pytest.warns(warning):
+            pika_processor = PikaEventBroker(
+                "host",
+                "username",
+                "password",
+                queues=queues_arg,
+                get_message=lambda: ("", None),
+            )
+    else:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+        
+            pika_processor = PikaEventBroker(
+                "host",
+                "username",
+                "password",
+                queues=queues_arg,
+                get_message=lambda: ("", None),
+            )
 
     assert pika_processor.queues == expected
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 import argparse
+import warnings
 
 import pytest
 from typing import Callable
@@ -171,5 +172,6 @@ def test_rasa_x_does_not_raise_warning_with_production_flag(
 
     args = argparse.Namespace(loglevel=None, log_file=None, production=True)
 
-    with pytest.warns(None):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         x.rasa_x(args)

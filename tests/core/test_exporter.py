@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 from typing import Any, AsyncIterator, Dict, Optional, Text, List
+import warnings
 from unittest.mock import Mock
 
 import pytest
@@ -316,7 +317,6 @@ async def test_closing_broker():
     exporter._fetch_events_within_time_range = _mocked_fetch
 
     # run the export function
-    with pytest.warns(None) as warnings:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         await exporter.publish_events()
-
-    assert len(warnings) == 0
