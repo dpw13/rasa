@@ -120,6 +120,7 @@ def process_messages(
     lm_featurizer.process(messages)
     return messages
 
+# TODO: Both classes below failed on a full -n16 pytest but passed when run with a single process
 
 @pytest.mark.parametrize(
     "model_name, model_weights, texts, expected_shape, "

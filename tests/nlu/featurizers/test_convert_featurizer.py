@@ -216,6 +216,7 @@ def test_convert_featurizer_token_edge_cases(
     assert [t.end for t in tokens] == [i[1] for i in expected_indices]
 
 
+# TODO: Flaky? Failed on full pytest with -n16 but passed just running this file
 @pytest.mark.skip_on_windows
 @pytest.mark.parametrize(
     "text, expected_number_of_sub_tokens",
