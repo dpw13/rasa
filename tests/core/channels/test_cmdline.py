@@ -12,13 +12,12 @@ from aioresponses import aioresponses
 ENTER = "\x0a"
 
 
-def mock_stdin(input_from_stdin: List[Text]):
+def mock_stdin(input_from_stdin: List[Text], inp):
     text = ""
     for line in input_from_stdin:
         text += line + ENTER + "\r"
 
-    with create_pipe_input() as inp:
-        inp.send_text(text)
+    inp.send_text(text)
 
     prompt_session_init = PromptSession.__init__
 
@@ -35,8 +34,6 @@ def mock_stdin(input_from_stdin: List[Text]):
         application_init(self, input=inp, output=DummyOutput(), *k, **kw)
 
     Application.__init__ = application_init_fake
-
-    return inp
 
 
 async def test_record_messages(monkeypatch: MonkeyPatch, capsys: CaptureFixture):
@@ -80,25 +77,27 @@ async def test_record_messages(monkeypatch: MonkeyPatch, capsys: CaptureFixture)
         {"in": "Dummy message", "out": [{"text": "Dummy response"}]},
     ]
 
-    inp = mock_stdin([m["in"] for m in input_output])
+    with create_pipe_input() as inp:
 
-    server_url = "http://example.com"
-    endpoint = f"{server_url}/webhooks/rest/webhook"
+        mock_stdin([m["in"] for m in input_output], inp)
 
-    with aioresponses() as mocked:
+        server_url = "http://example.com"
+        endpoint = f"{server_url}/webhooks/rest/webhook"
 
-        for output in [m["out"] for m in input_output]:
-            if output:
-                mocked.post(url=endpoint, payload=output)
+        with aioresponses() as mocked:
 
-        num_of_messages = await record_messages(
-            "123",
-            server_url=server_url,
-            max_message_limit=len(input_output),
-            use_response_stream=False,
-        )
+            for output in [m["out"] for m in input_output]:
+                if output:
+                    mocked.post(url=endpoint, payload=output)
 
-        assert num_of_messages == len(input_output)
+            num_of_messages = await record_messages(
+                "123",
+                server_url=server_url,
+                max_message_limit=len(input_output),
+                use_response_stream=False,
+            )
+
+            assert num_of_messages == len(input_output)
 
     captured = capsys.readouterr()
 
