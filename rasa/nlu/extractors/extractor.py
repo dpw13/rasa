@@ -86,6 +86,9 @@ class EntityExtractorMixin(abc.ABC):
     @staticmethod
     def filter_irrelevant_entities(extracted: list, requested_dimensions: set) -> list:
         """Only return dimensions the user configured."""
+        if requested_dimensions is None or len(requested_dimensions) == 0:
+            # By default return all entities
+            return extracted
         if requested_dimensions:
             return [
                 entity

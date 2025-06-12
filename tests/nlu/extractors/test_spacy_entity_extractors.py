@@ -29,12 +29,13 @@ def test_spacy_ner_extractor(spacy_nlp):
     }
 
     # Test dimension filtering includes only specified dimensions
+    # Updated SpaCy recognizes "Sebastian Thrun" as a GPE rather than a PERSON.
     example = Message(
         data={
-            TEXT: "anywhere in the West with Sebastian Thrun",
+            TEXT: "anywhere in the West with Robert Smith",
             "intent": "example_intent",
             "entities": [],
-            "text_spacy_doc": spacy_nlp("anywhere in the West with Sebastian Thrun"),
+            "text_spacy_doc": spacy_nlp("anywhere in the West with Robert Smith"),
         }
     )
 
@@ -45,8 +46,8 @@ def test_spacy_ner_extractor(spacy_nlp):
     assert example.get("entities")[0] == {
         "start": 26,
         "extractor": "SpacyEntityExtractor",
-        "end": 41,
-        "value": "Sebastian Thrun",
+        "end": 38,
+        "value": "Robert Smith",
         "entity": "PERSON",
         "confidence": None,
     }
