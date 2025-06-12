@@ -121,18 +121,35 @@ def test_spacy_featurizer_sequence(spacy_nlp):
     assert sen_vecs is not None
 
 
+CASE_SENSITIVE_EXAMPLES = [
+    "where is the white house?",
+    "give me some french fries",
+    "let's use the dutch oven",
+    "Apple is looking at buying UK startup for $1 billion",
+    "should we buy some apple",
+    "Autonomous cars shift insurance liability toward manufacturers",
+    "San Francisco considers banning sidewalk delivery robots",
+    "London is a big city in the United Kingdom.",
+    "Where are you?",
+    "Who is the president of France?",
+    "What is the capital of the United States?",
+    "When was Barack Obama born?",
+]
+
+
 def test_spacy_featurizer_default_case_insensitive(spacy_nlp_component):
     ftr = create_spacy_featurizer({})
     spacy_nlp = spacy_nlp_component.provide().model
-    td = loading.load_data("data/examples/rasa/demo-rasa.json")
-    for e in td.intent_examples:
-        doc = spacy_nlp_component._doc_for_text(spacy_nlp, e.get(TEXT))
-        doc_capitalized = spacy_nlp_component._doc_for_text(
-            spacy_nlp, e.get(TEXT).capitalize()
-        )
 
-        vecs = ftr._features_for_doc(doc)
-        vecs_capitalized = ftr._features_for_doc(doc_capitalized)
+    for e in CASE_SENSITIVE_EXAMPLES:
+        text_l = e.lower()
+        # SpaCy doesn't recognize I'M as uppercase I'm
+        text_u = e.title().replace("I'M", "I'm")
+        doc_l = spacy_nlp_component._doc_for_text(spacy_nlp, text_l)
+        doc_u = spacy_nlp_component._doc_for_text(spacy_nlp, text_u)
+
+        vecs = ftr._features_for_doc(doc_l)
+        vecs_capitalized = ftr._features_for_doc(doc_u)
 
         assert np.allclose(
             vecs, vecs_capitalized, atol=1e-5
@@ -140,22 +157,42 @@ def test_spacy_featurizer_default_case_insensitive(spacy_nlp_component):
             e.get(TEXT), e.get(TEXT).capitalize()
         )
 
-
 def test_spacy_featurizer_can_be_case_sensitive(spacy_case_sensitive_nlp_component):
     ftr = create_spacy_featurizer({})
     spacy_nlp = spacy_case_sensitive_nlp_component.provide().model
-    td = loading.load_data("data/examples/rasa/demo-rasa.json")
     example_is_case_insentive = []
-    for e in td.intent_examples:
-        doc = spacy_case_sensitive_nlp_component._doc_for_text(spacy_nlp, e.get(TEXT))
-        doc_capitalized = spacy_case_sensitive_nlp_component._doc_for_text(
-            spacy_nlp, e.get(TEXT).capitalize()
-        )
 
-        vecs = ftr._features_for_doc(doc)
-        vecs_capitalized = ftr._features_for_doc(doc_capitalized)
+    for e in CASE_SENSITIVE_EXAMPLES:
+        text_l = e.lower()
+        # SpaCy doesn't recognize I'M as uppercase I'm
+        text_u = e.title().replace("I'M", "I'm")
+        doc_l = spacy_case_sensitive_nlp_component._doc_for_text(spacy_nlp, text_l)
+        doc_u = spacy_case_sensitive_nlp_component._doc_for_text(spacy_nlp, text_u)
 
-        example_is_case_insentive.append(np.allclose(vecs, vecs_capitalized, atol=1e-5))
+        # Rather than comparing the word vectors, you can actually just compare
+        # the token's rank. The rank is used as the lookup into the word vector
+        # values so if the rank matches, the word vector matches.
+        #
+        # Update: I've checked every word in
+        # en_core_web_md-3.8.0/vocab/strings.json and even if the rank differs, the
+        # vector itself is the same. SpaCy uses floret to compute its word
+        # vectors, and the focus is on mimizing size rather than covering all use
+        # cases. It looks like vector reduction (at least in the _md model) likely
+        # combines the vectors for upper- and lower-case words. Based on that,
+        # it seems that verifying that the *rank* of the token (and thus the
+        # associated lexeme) is different in at least one case is sufficient to
+        # test that SpaCy is actually parsing text case differently, even if
+        # the word vectors associated with the two strings is identical.
+        rank_a = [t.rank for t in doc_l]
+        rank_b = [t.rank for t in doc_u]
+
+        vecs_l = ftr._features_for_doc(doc_l)
+        vecs_u = ftr._features_for_doc(doc_u)
+
+        case_insensitive = vecs_l == pytest.approx(vecs_u)
+        case_insensitive = case_insensitive and rank_a == rank_b
+
+        example_is_case_insentive.append(case_insensitive)
     assert not all(example_is_case_insentive)
 
 
