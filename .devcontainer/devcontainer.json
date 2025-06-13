@@ -40,6 +40,7 @@
     "forwardPorts": [
         5005
     ],
+    "postCreateCommand": "pip install -U pip poetry && make install-full prepare-spacy prepare-mitie prepare-transformers",
     // Use 'postCreateCommand' to run commands after the container is created.
     //"updateContentCommand": "make install && make install-docs && cd / && mkdir example && rasa init --no-prompt --init-dir example",
     // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
@@ -49,6 +50,10 @@
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/devcontainers/features/sshd:1": {}
+        "ghcr.io/devcontainers/features/sshd:1": {},
+        "ghcr.io/devcontainers/features/nvidia-cuda:1": {},
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        }
     }
 }
