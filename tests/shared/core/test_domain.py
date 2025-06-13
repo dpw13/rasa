@@ -7,7 +7,7 @@ import random
 from typing import Dict, List, Text, Any, Union, Set, Optional
 
 import pytest
-from pytest import WarningsRecorder
+from warnings import WarningMessage
 
 from rasa.shared.exceptions import YamlSyntaxException, YamlException
 import rasa.shared.utils.io
@@ -1837,7 +1837,7 @@ def test_domain_invalid_yml_in_folder():
         Domain.from_directory("data/test_domains/test_domain_from_directory/")
 
 
-def test_invalid_domain_dir_with_duplicates(recwarn: WarningsRecorder):
+def test_invalid_domain_dir_with_duplicates(recwarn: List[WarningMessage]):
     """
     Raises InvalidDomain if a domain is loaded from a directory with duplicated slots,
     responses and intents in domain files.
@@ -1850,7 +1850,7 @@ def test_invalid_domain_dir_with_duplicates(recwarn: WarningsRecorder):
         "utter_did_that_help, utter_greet \n"
         "The following duplicated slots have been found across multiple domain files: mood"
     )
-    for warning in recwarn.list:
+    for warning in recwarn:
         # filter expected warnings
         if not any(
             type(warning.message) == warning_type

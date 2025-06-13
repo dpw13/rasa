@@ -13,7 +13,7 @@ import uuid
 
 from pytest import TempdirFactory, MonkeyPatch, Function, TempPathFactory
 from spacy import Language
-from pytest import WarningsRecorder
+from warnings import WarningMessage
 
 from rasa.engine.caching import LocalTrainingCache
 from rasa.engine.graph import ExecutionContext, GraphSchema
@@ -21,7 +21,7 @@ from rasa.engine.storage.local_model_storage import LocalModelStorage
 from rasa.engine.storage.storage import ModelStorage
 from sanic.request import Request
 
-from typing import Generator, Iterator, Callable
+from typing import Generator, Iterator, Callable, Type
 
 from pathlib import Path
 from sanic import Sanic
@@ -883,17 +883,16 @@ def sanic_test_mode(monkeypatch: MonkeyPatch):
     monkeypatch.setattr(Sanic, "test_mode", True)
 
 
-def filter_expected_warnings(records: WarningsRecorder) -> WarningsRecorder:
-    records_copy = copy.deepcopy(records.list)
+def warning_matches(msg: WarningMessage, warning_type: Type[Warning], filter: str):
+    return msg.category == warning_type and re.search(filter, str(msg.message))
 
-    for warning_type, warning_message in rasa.utils.common.EXPECTED_WARNINGS:
-        for record in records_copy:
-            if type(record.message) == warning_type and re.search(
-                warning_message, str(record.message)
-            ):
-                records.pop(type(record.message))
 
-    return records
+def filter_expected_warnings(records: List[WarningMessage]) -> List[WarningMessage]:
+    records_remaining = [rec for rec in records
+                         if not any([warning_matches(rec, t, f)
+                                     for t, f in rasa.utils.common.EXPECTED_WARNINGS])]
+
+    return records_remaining
 
 
 @pytest.fixture

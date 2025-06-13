@@ -53,35 +53,35 @@ EXPECTED_WARNINGS: List[Tuple[Type[Warning], str]] = [
     # TODO (issue #9932)
     (
         np.VisibleDeprecationWarning,
-        "Creating an ndarray from ragged nested sequences.*",
+        r"Creating an ndarray from ragged nested sequences",
     ),
     # cf. https://github.com/tensorflow/tensorflow/issues/38168
     (
         UserWarning,
-        "Converting sparse IndexedSlices.* to a dense Tensor of unknown "
-        "shape. This may consume a large amount of memory.",
+        r"Converting sparse IndexedSlices.* to a dense Tensor of unknown "
+        r"shape. This may consume a large amount of memory.",
     ),
-    (UserWarning, "Slot auto-fill has been removed in 3.0 .*"),
+    (UserWarning, r"Slot auto-fill has been removed in 3.0"),
     # This warning is caused by the flatbuffers package
     # The import was fixed on Github, but the latest version
     # is not available on PyPi, so we cannot pin the newer version.
     # cf. https://github.com/google/flatbuffers/issues/6957
-    (DeprecationWarning, "the imp module is deprecated in favour of importlib.*"),
+    (DeprecationWarning, r"the imp module is deprecated in favour of importlib.*"),
     # Cannot fix this deprecation warning since we need to support two
     # numpy versions as long as we keep python 37 around
-    (DeprecationWarning, "the `interpolation=` argument to quantile was renamed"),
+    (DeprecationWarning, r"the `interpolation=` argument to quantile was renamed"),
     # the next two warnings are triggered by adding 3.10 support,
     # for more info: https://docs.python.org/3.10/whatsnew/3.10.html#deprecated
-    (DeprecationWarning, "the load_module*"),
-    (ImportWarning, "_SixMetaPathImporter.find_spec*"),
+    (DeprecationWarning, r"the load_module"),
+    (ImportWarning, r"_SixMetaPathImporter.find_spec"),
     # 3.10 specific warning: https://github.com/pytest-dev/pytest-asyncio/issues/212
-    (DeprecationWarning, "There is no current event loop"),
+    (DeprecationWarning, r"There is no current event loop"),
     # UserWarning which is always issued if the default value for
     # assistant_id key in config file is not changed
-    (UserWarning, "is missing a unique value for the 'assistant_id' mandatory key.*"),
+    (UserWarning, r"is missing a unique value for the 'assistant_id' mandatory key"),
     (
         DeprecationWarning,
-        "non-integer arguments to randrange\\(\\) have been deprecated since",
+        r"non-integer arguments to randrange\(\) have been deprecated since",
     ),
 ]
 
