@@ -67,7 +67,7 @@ class CountVectorsFeaturizer(SparseFeaturizer, GraphComponent):
             # remove accents during the preprocessing step
             "strip_accents": None,  # {'ascii', 'unicode', None}
             # list of stop words
-            "stop_words": None,  # string {'english'}, list, or None (default)
+            "stop_words": None,  # List, or None (default)
             # min document frequency of a word to add to vocabulary
             # float - the parameter represents a proportion of documents
             # integer - absolute counts
@@ -497,11 +497,13 @@ class CountVectorsFeaturizer(SparseFeaturizer, GraphComponent):
             attribute: Message attribute for which vocabulary stats are logged.
         """
         if attribute in DENSE_FEATURIZABLE_ATTRIBUTES:
-            vocabulary_size = len(self.vectorizers[attribute].vocabulary_)
-            logger.info(
-                f"{vocabulary_size} vocabulary items "
-                f"were created for {attribute} attribute."
-            )
+            vocab = self._get_attribute_vocabulary(attribute)
+            if vocab is not None:
+                vocabulary_size = len(vocab)
+                logger.info(
+                    f"{vocabulary_size} vocabulary items "
+                    f"were created for {attribute} attribute."
+                )
 
     def _fit_loaded_vectorizer(
         self, attribute: Text, attribute_texts: List[Text]
@@ -533,12 +535,12 @@ class CountVectorsFeaturizer(SparseFeaturizer, GraphComponent):
         """
         try:
             self.vectorizers[attribute].fit(attribute_texts)
-        except ValueError:
+        except ValueError as e:
             logger.warning(
                 f"Unable to train CountVectorizer for message "
                 f"attribute {attribute} since the call to sklearn's "
                 f"`.fit()` method failed. Leaving an untrained "
-                f"CountVectorizer for it."
+                f"CountVectorizer for it. Original exception: {e}"
             )
 
     def _create_features(
