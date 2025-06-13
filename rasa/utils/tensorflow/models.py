@@ -240,7 +240,7 @@ class RasaModel(Model):
     @staticmethod
     def _dynamic_signature(
         batch_in: Union[Tuple[tf.Tensor, ...], Tuple[np.ndarray, ...]]
-    ) -> List[List[tf.TensorSpec]]:
+    ) -> List[Tuple[tf.TensorSpec]]:
         element_spec = []
         for tensor in batch_in:
             if len(tensor.shape) > 1:
@@ -249,9 +249,11 @@ class RasaModel(Model):
             else:
                 shape = [None]
             element_spec.append(tf.TensorSpec(shape, tensor.dtype))
-        # batch_in is a list of tensors, therefore we need to wrap element_spec into
-        # the list
-        return [element_spec]
+        # batch_in is a single argument that is a tuple of tensors, so we need to
+        # wrap element_spec into the list of arguments. Note that it is a *tuple*
+        # of tensors, not a list. Recent tensorflow versions of tf.function()
+        # differentiate between those types and will fail to cast between them.
+        return [tuple(element_spec)]
 
     def _rasa_predict(
         self, batch_in: Tuple[np.ndarray, ...]
@@ -288,7 +290,8 @@ class RasaModel(Model):
 
         # Once we take advantage of TF's distributed training, this is where
         # scheduled functions will be forced to execute and return actual values.
-        outputs = tf_utils.sync_to_numpy_or_python_type(self._tf_predict_step(batch_in))
+        res = self._tf_predict_step(batch_in)
+        outputs = tf_utils.sync_to_numpy_or_python_type(res)
         if DIAGNOSTIC_DATA in outputs:
             outputs[DIAGNOSTIC_DATA] = self._empty_lists_to_none_in_dict(
                 outputs[DIAGNOSTIC_DATA]
