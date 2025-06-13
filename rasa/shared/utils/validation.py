@@ -61,7 +61,10 @@ class YamlValidationException(YamlException, ValueError):
         if self.validation_errors:
             unique_errors = {}
             for error in self.validation_errors:
-                line_number = self._line_number_for_path(self.content, error.path)
+                try:
+                    line_number = self._line_number_for_path(self.content, error.path)
+                except BaseException:
+                    line_number = None
 
                 if line_number and self.filename:
                     error_representation = f"  in {self.filename}:{line_number}:\n"

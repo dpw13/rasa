@@ -89,11 +89,10 @@ def test_example_bot_training_data_raises_only_auto_fill_warning(
             ]
         )
     else:
-        with warnings.catch_warnings(record=True) as record:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             importer.get_nlu_data()
             importer.get_stories()
-
-        assert record is None
 
 
 def test_example_bot_training_on_initial_project(tmp_path: Path):

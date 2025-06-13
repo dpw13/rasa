@@ -87,6 +87,6 @@ async def test_close_resources(loop: AbstractEventLoop):
     app.ctx.agent.action_endpoint.session = aiohttp.ClientSession()
     app.ctx.agent.model_server.session = aiohttp.ClientSession()
 
-    with warnings.catch_warnings(record=True) as record:
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         await run.close_resources(app, loop)
-        assert record is None

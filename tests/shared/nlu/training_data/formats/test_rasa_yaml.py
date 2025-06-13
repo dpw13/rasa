@@ -6,6 +6,7 @@ import pytest
 import pathlib
 
 from rasa.shared.exceptions import YamlException, YamlSyntaxException
+from rasa.shared.utils.validation import YamlValidationException
 import rasa.shared.utils.io
 from rasa.shared.constants import LATEST_TRAINING_DATA_FORMAT_VERSION
 from rasa.shared.nlu.constants import (
@@ -138,7 +139,7 @@ def test_wrong_format_raises():
     """
 
     parser = RasaYAMLReader()
-    with pytest.raises(YamlSyntaxException):
+    with pytest.raises((YamlSyntaxException, YamlValidationException)):
         parser.reads(wrong_yaml_nlu_content)
 
 
