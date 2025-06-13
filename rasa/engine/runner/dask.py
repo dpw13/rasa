@@ -4,6 +4,7 @@ import logging
 from typing import Any, Dict, List, Optional, Text
 
 import dask
+from dask._task_spec import DataNode, Task, TaskRef
 
 from rasa.engine.exceptions import GraphRunError
 from rasa.engine.graph import ExecutionContext, GraphNode, GraphNodeHook, GraphSchema
@@ -71,9 +72,9 @@ class DaskGraphRunner(GraphRunner):
         see: https://docs.dask.org/en/latest/spec.html
         """
         run_graph = {
-            node_name: (
-                self._instantiated_nodes[node_name],
-                *schema_node.needs.values(),
+            node_name: Task(
+                node_name, self._instantiated_nodes[node_name],
+                *[TaskRef(d) for d in schema_node.needs.values()],
             )
             for node_name, schema_node in schema.nodes.items()
         }
@@ -93,7 +94,7 @@ class DaskGraphRunner(GraphRunner):
             self._add_inputs_to_graph(inputs, run_graph)
 
         logger.debug(
-            f"Running graph with inputs: {inputs}, targets: {targets} "
+            f"Running graph with inputs: {inputs}, targets: {run_targets} "
             f"and {self._execution_context}."
         )
 
@@ -115,4 +116,4 @@ class DaskGraphRunner(GraphRunner):
                     f"that none of the input names passed to the `run` method are the "
                     f"same as node names in the graph schema."
                 )
-            graph[input_name] = (input_name, input_value)
+            graph[input_name] = DataNode(input_name, (input_name, input_value))

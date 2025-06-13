@@ -4,7 +4,7 @@ import dataclasses
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import logging
-from typing import Any, Callable, Dict, List, Optional, Text, Type, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Text, Type, Tuple, Union
 
 from rasa.engine.exceptions import (
     GraphComponentException,
@@ -135,8 +135,11 @@ class GraphSchema:
 
     def minimal_graph_schema(self, targets: Optional[List[Text]] = None) -> GraphSchema:
         """Returns a new schema where all nodes are a descendant of a target."""
-        dependencies = self._all_dependencies_schema(
-            targets if targets else self.target_names
+
+        dependencies: Set[Text] = set()
+        self._all_dependencies_schema(
+            targets if targets else self.target_names,
+            dependencies
         )
 
         return GraphSchema(
@@ -147,18 +150,17 @@ class GraphSchema:
             }
         )
 
-    def _all_dependencies_schema(self, targets: List[Text]) -> List[Text]:
-        required = []
+    def _all_dependencies_schema(self, targets: List[Text], required: Set[Text]) -> None:
         for target in targets:
-            required.append(target)
+            if target in required:
+                # Already visited
+                return
+            required.add(target)
             try:
                 target_dependencies = self.nodes[target].needs.values()
             except KeyError:  # This can happen if the target is an input placeholder.
                 continue
-            for dependency in target_dependencies:
-                required += self._all_dependencies_schema([dependency])
-
-        return required
+            self._all_dependencies_schema(target_dependencies, required)
 
 
 class GraphComponent(ABC):
