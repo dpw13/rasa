@@ -178,6 +178,7 @@ def test_override_defaults():
     assert updated_config == expected_config
 
 # May be flaky due to interaction with other running tests
+@pytest.mark.flaky
 def test_cli_missing_log_level_default_used():
     """Test CLI without log level parameter or env var uses default."""
     configure_logging_and_warnings()

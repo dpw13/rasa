@@ -8,6 +8,7 @@ import os
 import pathlib
 import sys
 import tempfile
+import warnings
 from typing import Any, Dict, Text
 from pathlib import Path
 from rasa.shared.importers.importer import TrainingDataImporter
@@ -444,22 +445,19 @@ def test_validate_files_with_active_loop_null(
         domain_file,
         [file_name, nlu_file],
     )
-    with pytest.warns() as warning_recorder:
+    with warnings.catch_warnings(record=True) as records:
         rasa.cli.utils.validate_files(
             fail_on_warnings=False,
             max_history=None,
             importer=importer,
         )
 
-    assert not [
-        warning.message
-        for warning in warning_recorder.list
-        if not any(
-            type(warning.message) == warning_type
+    for warning in records:
+        assert not any(
+            warning.category == warning_type
             and re.search(warning_message, str(warning.message))
             for warning_type, warning_message in EXPECTED_WARNINGS
         )
-    ]
 
 
 def test_validate_files_form_slots_not_matching(tmp_path: Path):

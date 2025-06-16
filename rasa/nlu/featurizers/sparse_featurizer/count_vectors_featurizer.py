@@ -533,15 +533,7 @@ class CountVectorsFeaturizer(SparseFeaturizer, GraphComponent):
             attribute: Message attribute for which the vectorizer is to be trained.
             attribute_texts: Training texts for the attribute
         """
-        try:
-            self.vectorizers[attribute].fit(attribute_texts)
-        except ValueError as e:
-            logger.warning(
-                f"Unable to train CountVectorizer for message "
-                f"attribute {attribute} since the call to sklearn's "
-                f"`.fit()` method failed. Leaving an untrained "
-                f"CountVectorizer for it. Original exception: {e}"
-            )
+        self.vectorizers[attribute].fit(attribute_texts)
 
     def _create_features(
         self, attribute: Text, all_tokens: List[List[Text]]

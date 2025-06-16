@@ -460,7 +460,8 @@ async def cancel_reminder_and_check(
     # check that only one job was removed
     assert len((await jobs.scheduler()).get_jobs()) == num_jobs_after
 
-
+# The following four "test_reminder_cancelled_*" tests appear to flake. The first
+# one to run will pass and the remainder will fail.
 async def test_reminder_cancelled_by_name(
     default_channel: CollectingOutputChannel,
     default_processor: MessageProcessor,

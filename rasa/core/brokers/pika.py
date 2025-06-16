@@ -92,6 +92,9 @@ class PikaEventBroker(EventBroker):
         self._connection: Optional[aio_pika.abc.AbstractRobustConnection] = None
         self._exchange: Optional[aio_pika.RobustExchange] = None
 
+        # aio_pika should not log at INFO
+        aio_pika.log.get_logger("aio_pika.robust_connection").setLevel(logging.WARNING)
+
     @staticmethod
     def _get_queues_from_args(
         queues_arg: Union[List[Text], Tuple[Text, ...], Text, None]
@@ -205,7 +208,10 @@ class PikaEventBroker(EventBroker):
                     login=self.username,
                     loop=self._loop,
                     ssl=ssl_options is not None,
-                    ssl_options=ssl_options,
+                    ssl_options=ssl_options
+                    # TODO: we should be specifying timeout here but that causes
+                    # a variety of futher issues within aio_pika, at least when
+                    # uvloop is under the hood.
                 )
             # All sorts of exception can happen until RabbitMQ is in a stable state
             except Exception as e:

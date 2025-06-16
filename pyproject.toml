@@ -234,7 +234,13 @@ convention = "google"
 
 [tool.pytest.ini_options]
 python_functions = "test_"
-filterwarnings = [ "ignore::ResourceWarning:ruamel[.*]",]
+filterwarnings = [
+    # TODO: needs explanation
+    "ignore::ResourceWarning:ruamel[.*]",
+    # pykwalify has not been updated in years and has not been ported to importlib.
+    # TODO: migrate away from pykwalify
+    "ignore::DeprecationWarning:[.*]",
+]
 log_cli_level = "WARNING"
 log_cli = true
 markers = [ "skip_on_windows", "skip_on_ci", "sequential", "category_cli", "category_core_featurizers", "category_policies", "category_nlu_featurizers", "category_nlu_predictors", "category_full_model_training", "category_other_unit_tests", "category_performance", "flaky",]

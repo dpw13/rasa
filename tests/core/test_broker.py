@@ -317,6 +317,13 @@ async def test_kafka_broker_security_protocols(file: Text, exception: Exception)
         producer.list_topics("topic", timeout=1)
 
 
+# Properly specifying a timeout to aio_pika.connect_robust results in a
+# continuous loop of retries from aio_pika. I think this is exposing
+# a problem in the timeout implementation rather than logging.
+# In addition, the newer versions of aio_pika do actually log disconnects
+# at the INFO level so this test is too badly damaged to maintain at the
+# moment.
+@pytest.mark.skip("aiormq does not properly handle timeouts in the form of uvloop CancelledError")
 @pytest.mark.flaky
 async def test_no_pika_logs_if_no_debug_mode(caplog: LogCaptureFixture):
     """

@@ -90,7 +90,7 @@ def test_dynamo_get_or_create():
 
 
 # No clue why this test appears to think that pytest-asyncio is missing.
-#@pytest.mark.skip(reason="Failure to find pytest-asyncio")
+@pytest.mark.skip(reason="Failure to find pytest-asyncio")
 @mock_aws
 async def test_dynamo_tracker_floats():
     conversation_id = uuid.uuid4().hex

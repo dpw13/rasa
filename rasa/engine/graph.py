@@ -154,13 +154,14 @@ class GraphSchema:
         for target in targets:
             if target in required:
                 # Already visited
-                return
+                continue
             required.add(target)
             try:
                 target_dependencies = self.nodes[target].needs.values()
             except KeyError:  # This can happen if the target is an input placeholder.
                 continue
-            self._all_dependencies_schema(target_dependencies, required)
+            if target_dependencies:
+                self._all_dependencies_schema(target_dependencies, required)
 
 
 class GraphComponent(ABC):

@@ -4,3 +4,19 @@ make install-full
 make prepare-spacy
 make prepare-mitie
 make prepare-transformers
+
+TODO:
+short-term:
+    * silence pykwalify load_module() warnings
+    * check remaining warnings from full test run
+    * investigate flaky pipeline failures "Missing dependency end_to_end_features_provider for dependents"
+    * tests/core/test_processor.py: flaky "inconsistent loop usage"
+
+- aio_pika does not recognize asyncio.exceptions.TimeoutError as CONNECTION_EXCEPTIONS
+
+flakes:
+[gw13] [ 66%] PASSED tests/core/test_processor.py::test_reminder_cancelled_all
+[gw9] [ 73%] PASSED tests/core/test_processor.py::test_reminder_cancelled_by_intent
+[gw10] [ 80%] PASSED tests/core/test_processor.py::test_reminder_cancelled_by_name
+
+* longer-term: replace pykwalify

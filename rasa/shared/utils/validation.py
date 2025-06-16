@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 from typing import Text, Dict, List, Optional, Any
 
 from packaging import version
@@ -165,11 +166,14 @@ def validate_yaml_schema(
 
     ref = resources.files(PACKAGE_NAME).joinpath(SCHEMA_EXTENSIONS_FILE)
     with resources.as_file(ref) as schema_extensions:
-        c = Core(
-            source_data=source_data,
-            schema_data=schema_content,
-            extensions=[str(schema_extensions)],
-        )
+        # TODO: migrate off pykwalify; it hasn't been updated in years and throws deprecation warnings now.
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            c = Core(
+                source_data=source_data,
+                schema_data=schema_content,
+                extensions=[str(schema_extensions)],
+            )
 
     try:
         c.validate(raise_exception=True)

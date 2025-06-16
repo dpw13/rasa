@@ -744,7 +744,7 @@ def test_core_warn_if_data_but_no_policy(
             validator.validate(importer)
         assert len(records) == 1
     else:
-        with pytest.warns() as records:
+        with warnings.catch_warnings(record=True) as records:
             validator.validate(importer)
         records = filter_expected_warnings(records)
         assert len(records) == 0

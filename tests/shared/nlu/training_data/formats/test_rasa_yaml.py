@@ -259,7 +259,7 @@ responses:
 def test_multiline_intent_example_is_skipped_when_no_leading_symbol():
     parser = RasaYAMLReader()
 
-    with pytest.warns() as record:
+    with warnings.catch_warnings(record=True) as record:
         training_data = parser.reads(MULTILINE_INTENT_EXAMPLES_NO_LEADING_SYMBOL)
 
     record = filter_expected_warnings(record)

@@ -258,7 +258,7 @@ async def test_is_yaml_file(file: Text):
 def test_yaml_intent_with_leading_slash_warning(domain: Domain):
     yaml_file = "data/test_wrong_yaml_stories/intent_with_leading_slash.yml"
 
-    with pytest.warns() as record:
+    with warnings.catch_warnings(record=True) as record:
         tracker = training.load_data(
             yaml_file,
             domain,
@@ -269,7 +269,7 @@ def test_yaml_intent_with_leading_slash_warning(domain: Domain):
     record = filter_expected_warnings(record)
     # one for leading slash
     assert len(record) == 1
-    assert type(record[0].message) == UserWarning
+    assert record[0].category == UserWarning
 
     assert tracker[0].latest_message == UserUttered(intent={"name": "simple"})
 
@@ -696,12 +696,12 @@ def test_read_from_file_skip_validation(monkeypatch: MonkeyPatch):
 def test_raises_exception_missing_intent_in_rules(file: Text, domain: Domain):
     reader = YAMLStoryReader(domain)
 
-    with pytest.warns() as warning:
+    with warnings.catch_warnings(record=True) as warning:
         reader.read_from_file(file)
 
     warning = filter_expected_warnings(warning)
 
-    assert "Missing intent value" in warning[0].message.args[0]
+    assert "Missing intent value" in str(warning[0].message)
 
 
 def test_can_read_test_story(domain: Domain):

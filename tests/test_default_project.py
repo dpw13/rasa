@@ -4,6 +4,7 @@ import pytest
 import copy
 
 import re
+import warnings
 
 from pytest import Testdir
 
@@ -36,7 +37,7 @@ def test_default_project_has_no_warnings(
 
     rasa.shared.utils.io.write_yaml(config, "config.yml")
 
-    with pytest.warns() as warning_recorder:
+    with warnings.catch_warnings(record=True) as warning_recorder:
         arg_namespace = parser.parse_args(["data", "validate"])
         rasa.cli.utils.validate_files(
             arg_namespace.fail_on_warnings,
@@ -46,12 +47,10 @@ def test_default_project_has_no_warnings(
         rasa.cli.train.run_training(parser.parse_args(["train"]))
 
     # pytest.warns would override any warning filters that we could set
-    assert not [
-        warning.message
-        for warning in warning_recorder.list
-        if not any(
-            type(warning.message) == warning_type
+    for warning in warning_recorder:
+        # assert each warning is in the expected warnings list
+        assert any(
+            warning.category == warning_type
             and re.search(warning_message, str(warning.message))
             for warning_type, warning_message in EXPECTED_WARNINGS
         )
-    ]

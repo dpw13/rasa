@@ -221,12 +221,6 @@ class SlotMapping:
 
 def validate_slot_mappings(domain_slots: Dict[Text, Any]) -> None:
     """Raises InvalidDomain exception if slot mappings are invalid."""
-    rasa.shared.utils.io.raise_warning(
-        f"Slot auto-fill has been removed in 3.0 and replaced with a "
-        f"new explicit mechanism to set slots. "
-        f"Please refer to {DOCS_URL_SLOTS} to learn more.",
-        UserWarning,
-    )
 
     for slot_name, properties in domain_slots.items():
         mappings = properties.get(SLOT_MAPPINGS)
