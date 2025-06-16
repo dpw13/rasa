@@ -249,16 +249,17 @@ timeout_func_only = true
 asyncio_mode = "auto"
 
 [tool.poetry.dependencies.tensorflow]
-version = ">=2.14.0,<2.16.0"
+version = ">=2.16.0,<2.17.0"
 markers = "sys_platform != 'darwin' or platform_machine != 'arm64'"
 
 [tool.poetry.dependencies.tensorflow-intel]
-version = ">=2.14.0,<2.16.0"
+version = ">=2.16.0,<2.17.0"
 markers = "sys_platform == 'win32'"
 
-[tool.poetry.dependencies.tensorflow-cpu-aws]
-version = ">=2.14.0,<2.16.0"
-markers = "sys_platform == 'linux' and (platform_machine == 'arm64' or platform_machine == 'aarch64')"
+#[tool.poetry.dependencies.tensorflow-cpu-aws]
+## tensorflow-cpu-aws is wildly out of date
+#version = ">=2.16.0,<2.17.0"
+#markers = "sys_platform == 'linux' and (platform_machine == 'arm64' or platform_machine == 'aarch64')"
 
 #[tool.poetry.dependencies.tensorflow-macos]
 ## tensorflow-macos has some kind of self-dependency after about 2.14

@@ -1,10 +1,15 @@
 import logging
 from typing import List, Optional, Text, Tuple, Callable, Union, Any
 import tensorflow as tf
+import tf_keras
 
 # TODO: The following is not (yet) available via tf.keras
-from keras.src.utils.control_flow_util import smart_cond
-import tensorflow.keras.backend as K
+# This import changes with every TF version... To really support multiple versions this import
+# should probably be moved into its own package that tries all known combinations
+# 2.15: keras.src.utils.control_flow
+# 2.16: tensorflow.python.keras.utils.control_flow_util
+from tensorflow.python.keras.utils.control_flow_util import smart_cond
+from tensorflow.python.keras import backend as K
 
 import rasa.utils.tensorflow.crf
 from rasa.utils.tensorflow.constants import (
@@ -40,7 +45,7 @@ POSSIBLE_ATTRIBUTES = [
 ]
 
 
-class SparseDropout(tf.keras.layers.Dropout):
+class SparseDropout(tf_keras.layers.Dropout):
     """Applies Dropout to the input.
 
     Dropout consists in randomly setting
@@ -87,7 +92,7 @@ class SparseDropout(tf.keras.layers.Dropout):
         return tf.SparseTensor(outputs.indices, outputs.values, inputs._dense_shape)
 
 
-class DenseForSparse(tf.keras.layers.Dense):
+class DenseForSparse(tf_keras.layers.Dense):
     """Dense layer for sparse input tensor.
 
     Just your regular densely-connected NN layer but for sparse tensors.
@@ -220,7 +225,7 @@ class DenseForSparse(tf.keras.layers.Dense):
         return outputs
 
 
-class RandomlyConnectedDense(tf.keras.layers.Dense):
+class RandomlyConnectedDense(tf_keras.layers.Dense):
     """Layer with dense ouputs that are connected to a random subset of inputs.
 
     `RandomlyConnectedDense` implements the operation:
@@ -239,7 +244,7 @@ class RandomlyConnectedDense(tf.keras.layers.Dense):
     output).
 
     At `density = 0.0` the number of trainable weights is `max(input_size, units)`. At
-    `density = 1.0` this layer is equivalent to `tf.keras.layers.Dense`.
+    `density = 1.0` this layer is equivalent to `tf_keras.layers.Dense`.
 
     Input shape:
         N-D tensor with shape: `(batch_size, ..., input_dim)`.
@@ -367,7 +372,7 @@ class RandomlyConnectedDense(tf.keras.layers.Dense):
         return super().call(inputs)
 
 
-class Ffnn(tf.keras.layers.Layer):
+class Ffnn(tf_keras.layers.Layer):
     """Feed-forward network layer.
 
     Arguments:
@@ -410,7 +415,7 @@ class Ffnn(tf.keras.layers.Layer):
                     name=f"hidden_layer_{layer_name_suffix}_{i}",
                 )
             )
-            self._ffn_layers.append(tf.keras.layers.Dropout(dropout_rate))
+            self._ffn_layers.append(tf_keras.layers.Dropout(dropout_rate))
 
     def call(
         self, x: tf.Tensor, training: Optional[Union[tf.Tensor, bool]] = None
@@ -422,7 +427,7 @@ class Ffnn(tf.keras.layers.Layer):
         return x
 
 
-class Embed(tf.keras.layers.Layer):
+class Embed(tf_keras.layers.Layer):
     """Dense embedding layer.
 
     Input shape:
@@ -449,7 +454,7 @@ class Embed(tf.keras.layers.Layer):
         super().__init__(name=f"embed_{layer_name_suffix}")
 
         regularizer = tf.keras.regularizers.l2(reg_lambda)
-        self._dense = tf.keras.layers.Dense(
+        self._dense = tf_keras.layers.Dense(
             units=embed_dim,
             activation=None,
             kernel_regularizer=regularizer,
@@ -463,7 +468,7 @@ class Embed(tf.keras.layers.Layer):
         return x
 
 
-class InputMask(tf.keras.layers.Layer):
+class InputMask(tf_keras.layers.Layer):
     """The layer that masks 15% of the input.
 
     Input shape:
@@ -567,7 +572,7 @@ def _scale_loss(log_likelihood: tf.Tensor) -> tf.Tensor:
     )
 
 
-class CRF(tf.keras.layers.Layer):
+class CRF(tf_keras.layers.Layer):
     """CRF layer.
 
     Arguments:
@@ -677,7 +682,7 @@ class CRF(tf.keras.layers.Layer):
         return self.f1_score_metric(tag_ids_flat_one_hot, pred_ids_flat_one_hot)
 
 
-class DotProductLoss(tf.keras.layers.Layer):
+class DotProductLoss(tf_keras.layers.Layer):
     """Abstract dot-product loss layer class.
 
     Idea based on StarSpace paper: http://arxiv.org/abs/1709.03856

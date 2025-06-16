@@ -1,5 +1,6 @@
 import pytest
 import tensorflow as tf
+import tf_keras
 import numpy as np
 
 from typing import Text, Union, Any, Dict, List, Type
@@ -231,7 +232,7 @@ attribute_features_basic = (
     ],
 )
 def test_layer_gives_correct_output_units(
-    layer_class: Type[tf.keras.layers.Layer],
+    layer_class: Type[tf_keras.layers.Layer],
     model_config: Dict[Text, Any],
     layer_args: Dict[Text, Any],
     expected_output_units: int,
@@ -468,7 +469,7 @@ def test_layer_gives_correct_output_units(
     ],
 )
 def test_correct_output_shape(
-    layer_class: Type[tf.keras.layers.Layer],
+    layer_class: Type[tf_keras.layers.Layer],
     model_config: Dict[Text, Any],
     layer_args: Dict[Text, Any],
     layer_inputs: List[List[Union[tf.SparseTensor, tf.Tensor]]],
@@ -518,7 +519,7 @@ def test_correct_output_shape(
     ],
 )
 def test_raises_exception_when_missing_features(
-    layer_class: Type[tf.keras.layers.Layer], layer_args: Dict[Text, Any]
+    layer_class: Type[tf_keras.layers.Layer], layer_args: Dict[Text, Any]
 ) -> None:
     with pytest.raises(TFLayerConfigException):
         layer_class(**layer_args, attribute=attribute_name, config=model_config_basic)

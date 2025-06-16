@@ -4,7 +4,7 @@ from typing import List, Union, Text, Optional, Any, Tuple, Dict, cast
 import logging
 import scipy.sparse
 import numpy as np
-from keras.src.utils import Sequence
+from keras.utils import Sequence
 
 from rasa.utils.tensorflow.constants import SEQUENCE, BALANCED
 from rasa.utils.tensorflow.model_data import RasaModelData, Data, FeatureArray

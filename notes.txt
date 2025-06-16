@@ -5,6 +5,8 @@ make prepare-spacy
 make prepare-mitie
 make prepare-transformers
 
+TF 2.16 makes a big jump to keras 3.x
+
 TODO:
 short-term:
     * silence pykwalify load_module() warnings

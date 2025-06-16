@@ -9,6 +9,7 @@ from typing import List, Text, Dict, Tuple, Union, Optional, Any, TYPE_CHECKING
 
 from keras.src.utils import tf_utils, set_random_seed
 from keras import Model
+import tf_keras
 
 from rasa.shared.constants import DIAGNOSTIC_DATA
 from rasa.utils.tensorflow.constants import (
@@ -585,7 +586,7 @@ class TransformerRasaModel(RasaModel):
         )
 
         # set up tf layers
-        self._tf_layers: Dict[Text, tf.keras.layers.Layer] = {}
+        self._tf_layers: Dict[Text, tf_keras.layers.Layer] = {}
 
     def adjust_for_incremental_training(
         self,
@@ -798,7 +799,7 @@ class TransformerRasaModel(RasaModel):
         )
 
     @property
-    def dot_product_loss_layer(self) -> tf.keras.layers.Layer:
+    def dot_product_loss_layer(self) -> tf_keras.layers.Layer:
         """Returns the dot-product loss layer to use.
 
         Returns:

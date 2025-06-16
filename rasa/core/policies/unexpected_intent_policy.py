@@ -5,6 +5,7 @@ from typing import Any, List, Optional, Text, Dict, Type, Union
 
 import numpy as np
 import tensorflow as tf
+import tf_keras
 import rasa.utils.common
 from rasa.engine.graph import ExecutionContext
 from rasa.engine.recipes.default_recipe import DefaultV1Recipe
@@ -946,7 +947,7 @@ class IntentTED(TED):
         )
 
     @property
-    def dot_product_loss_layer(self) -> tf.keras.layers.Layer:
+    def dot_product_loss_layer(self) -> tf_keras.layers.Layer:
         """Returns the dot-product loss layer to use.
 
         Multiple intents can be valid simultaneously, so `IntentTED` uses the

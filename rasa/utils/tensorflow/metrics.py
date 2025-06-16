@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow.keras import backend as K
-from tensorflow.types.experimental import TensorLike
+from tensorflow.python.keras import backend as K
+from tensorflow.python.types.core import TensorLike
 from typing import Any, Dict, Optional
 
 
