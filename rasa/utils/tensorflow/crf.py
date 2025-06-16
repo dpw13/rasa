@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow import TensorShape
 from tensorflow.python.types.core import TensorLike
-import tf_keras
+from tensorflow.python.keras.layers import AbstractRNNCell
+import keras
 from typing import Tuple, Any, List, Union, Optional
 
 
@@ -10,7 +11,7 @@ from typing import Tuple, Any, List, Union, Optional
 # (modified to our neeeds)
 
 
-class CrfDecodeForwardRnnCell(tf_keras.layers.AbstractRNNCell):
+class CrfDecodeForwardRnnCell(AbstractRNNCell):
     """Computes the forward decoding in a linear-chain CRF."""
 
     def __init__(self, transition_params: TensorLike, **kwargs: Any) -> None:
@@ -92,7 +93,7 @@ def crf_decode_forward(
     sequence_lengths = tf.cast(sequence_lengths, dtype=tf.int32)
     mask = tf.sequence_mask(sequence_lengths, tf.shape(inputs)[1])
     crf_fwd_cell = CrfDecodeForwardRnnCell(transition_params)
-    crf_fwd_layer = tf_keras.layers.RNN(
+    crf_fwd_layer = keras.layers.RNN(
         crf_fwd_cell, return_sequences=True, return_state=True
     )
     return crf_fwd_layer(inputs, state, mask=mask)
@@ -478,7 +479,7 @@ def crf_log_likelihood(
     sequence_lengths = tf.cast(sequence_lengths, dtype=tf.int32)
 
     if transition_params is None:
-        initializer = tf.keras.initializers.GlorotUniform()
+        initializer = keras.initializers.GlorotUniform()
         transition_params = tf.Variable(
             initializer([num_tags, num_tags]), "transitions"
         )

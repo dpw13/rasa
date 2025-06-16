@@ -9,7 +9,7 @@ from typing import List, Text, Dict, Tuple, Union, Optional, Any, TYPE_CHECKING
 
 from keras.src.utils import tf_utils, set_random_seed
 from keras import Model
-import tf_keras
+import keras
 
 from rasa.shared.constants import DIAGNOSTIC_DATA
 from rasa.utils.tensorflow.constants import (
@@ -82,10 +82,10 @@ class RasaModel(Model):
             random_seed: set the random seed to get reproducible results
         """
         # make sure that keras releases resources from previously trained model
-        tf.keras.backend.clear_session()
+        keras.backend.clear_session()
         super().__init__(**kwargs)
 
-        self.total_loss = tf.keras.metrics.Mean(name="t_loss")
+        self.total_loss = keras.metrics.Mean(name="t_loss")
         self.metrics_to_log = ["t_loss"]
 
         self._training = None  # training phase should be defined when building a graph
@@ -443,7 +443,7 @@ class RasaModel(Model):
 
         # need to train on 1 example to build weights of the correct size
         model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate), run_eagerly=run_eagerly
+            optimizer=keras.optimizers.Adam(learning_rate), run_eagerly=run_eagerly
         )
         data_generator = RasaBatchDataGenerator(model_data_example, batch_size=1)
         model.fit(data_generator, verbose=False)
@@ -473,6 +473,8 @@ class RasaModel(Model):
         # during training batch is a tuple of input and target data
         # as our target data is inside the input data, we are just interested in the
         # input data
+        # FIXME: this logic doesn't look correct. Wouldn't we want to unpack if the
+        # outer structure is a Tuple, not the inner?
         unpacked_batch = batch[0] if isinstance(batch[0], Tuple) else batch
 
         batch_data: Dict[Text, Dict[Text, List[tf.Tensor]]] = defaultdict(
@@ -586,7 +588,7 @@ class TransformerRasaModel(RasaModel):
         )
 
         # set up tf layers
-        self._tf_layers: Dict[Text, tf_keras.layers.Layer] = {}
+        self._tf_layers: Dict[Text, keras.layers.Layer] = {}
 
     def adjust_for_incremental_training(
         self,
@@ -729,7 +731,7 @@ class TransformerRasaModel(RasaModel):
             data_example: a data example that is stored with the ML component.
         """
         self.compile(
-            optimizer=tf.keras.optimizers.Adam(self.config[LEARNING_RATE]),
+            optimizer=keras.optimizers.Adam(self.config[LEARNING_RATE]),
             run_eagerly=self.config[RUN_EAGERLY],
         )
         label_key = LABEL_KEY if self.config[INTENT_CLASSIFICATION] else None
@@ -799,7 +801,7 @@ class TransformerRasaModel(RasaModel):
         )
 
     @property
-    def dot_product_loss_layer(self) -> tf_keras.layers.Layer:
+    def dot_product_loss_layer(self) -> keras.layers.Layer:
         """Returns the dot-product loss layer to use.
 
         Returns:

@@ -1,4 +1,5 @@
 import tensorflow as tf
+import keras
 from tensorflow.python.keras import backend as K
 from tensorflow.python.types.core import TensorLike
 from typing import Any, Dict, Optional
@@ -9,7 +10,7 @@ from typing import Any, Dict, Optional
 # (modified to our neeeds)
 
 
-class FBetaScore(tf.keras.metrics.Metric):
+class FBetaScore(keras.metrics.Metric):
     r"""Computes F-Beta score.
 
     It is the weighted harmonic mean of precision
@@ -118,7 +119,7 @@ class FBetaScore(tf.keras.metrics.Metric):
 
         def _zero_wt_init(name: Any) -> Any:
             return self.add_weight(
-                name, shape=self.init_shape, initializer="zeros", dtype=self.dtype
+                name=name, shape=self.init_shape, initializer="zeros", dtype=self.dtype
             )
 
         self.true_positives = _zero_wt_init("true_positives")

@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional, Text, Tuple, Callable, Union, Any
 import tensorflow as tf
-import tf_keras
+import keras
 
 # TODO: The following is not (yet) available via tf.keras
 # This import changes with every TF version... To really support multiple versions this import
@@ -45,7 +45,7 @@ POSSIBLE_ATTRIBUTES = [
 ]
 
 
-class SparseDropout(tf_keras.layers.Dropout):
+class SparseDropout(keras.layers.Dropout):
     """Applies Dropout to the input.
 
     Dropout consists in randomly setting
@@ -92,7 +92,7 @@ class SparseDropout(tf_keras.layers.Dropout):
         return tf.SparseTensor(outputs.indices, outputs.values, inputs._dense_shape)
 
 
-class DenseForSparse(tf_keras.layers.Dense):
+class DenseForSparse(keras.layers.Dense):
     """Dense layer for sparse input tensor.
 
     Just your regular densely-connected NN layer but for sparse tensors.
@@ -136,7 +136,7 @@ class DenseForSparse(tf_keras.layers.Dense):
 
     def __init__(self, reg_lambda: float = 0, **kwargs: Any) -> None:
         if reg_lambda > 0:
-            regularizer = tf.keras.regularizers.l2(reg_lambda)
+            regularizer = keras.regularizers.l2(reg_lambda)
         else:
             regularizer = None
 
@@ -225,7 +225,7 @@ class DenseForSparse(tf_keras.layers.Dense):
         return outputs
 
 
-class RandomlyConnectedDense(tf_keras.layers.Dense):
+class RandomlyConnectedDense(keras.layers.Dense):
     """Layer with dense ouputs that are connected to a random subset of inputs.
 
     `RandomlyConnectedDense` implements the operation:
@@ -244,7 +244,7 @@ class RandomlyConnectedDense(tf_keras.layers.Dense):
     output).
 
     At `density = 0.0` the number of trainable weights is `max(input_size, units)`. At
-    `density = 1.0` this layer is equivalent to `tf_keras.layers.Dense`.
+    `density = 1.0` this layer is equivalent to `keras.layers.Dense`.
 
     Input shape:
         N-D tensor with shape: `(batch_size, ..., input_dim)`.
@@ -372,7 +372,7 @@ class RandomlyConnectedDense(tf_keras.layers.Dense):
         return super().call(inputs)
 
 
-class Ffnn(tf_keras.layers.Layer):
+class Ffnn(keras.layers.Layer):
     """Feed-forward network layer.
 
     Arguments:
@@ -403,7 +403,7 @@ class Ffnn(tf_keras.layers.Layer):
     ) -> None:
         super().__init__(name=f"ffnn_{layer_name_suffix}")
 
-        l2_regularizer = tf.keras.regularizers.l2(reg_lambda)
+        l2_regularizer = keras.regularizers.l2(reg_lambda)
         self._ffn_layers = []
         for i, layer_size in enumerate(layer_sizes):
             self._ffn_layers.append(
@@ -415,7 +415,7 @@ class Ffnn(tf_keras.layers.Layer):
                     name=f"hidden_layer_{layer_name_suffix}_{i}",
                 )
             )
-            self._ffn_layers.append(tf_keras.layers.Dropout(dropout_rate))
+            self._ffn_layers.append(keras.layers.Dropout(dropout_rate))
 
     def call(
         self, x: tf.Tensor, training: Optional[Union[tf.Tensor, bool]] = None
@@ -427,7 +427,7 @@ class Ffnn(tf_keras.layers.Layer):
         return x
 
 
-class Embed(tf_keras.layers.Layer):
+class Embed(keras.layers.Layer):
     """Dense embedding layer.
 
     Input shape:
@@ -453,8 +453,8 @@ class Embed(tf_keras.layers.Layer):
         """
         super().__init__(name=f"embed_{layer_name_suffix}")
 
-        regularizer = tf.keras.regularizers.l2(reg_lambda)
-        self._dense = tf_keras.layers.Dense(
+        regularizer = keras.regularizers.l2(reg_lambda)
+        self._dense = keras.layers.Dense(
             units=embed_dim,
             activation=None,
             kernel_regularizer=regularizer,
@@ -468,7 +468,7 @@ class Embed(tf_keras.layers.Layer):
         return x
 
 
-class InputMask(tf_keras.layers.Layer):
+class InputMask(keras.layers.Layer):
     """The layer that masks 15% of the input.
 
     Input shape:
@@ -572,7 +572,7 @@ def _scale_loss(log_likelihood: tf.Tensor) -> tf.Tensor:
     )
 
 
-class CRF(tf_keras.layers.Layer):
+class CRF(keras.layers.Layer):
     """CRF layer.
 
     Arguments:
@@ -591,7 +591,7 @@ class CRF(tf_keras.layers.Layer):
         super().__init__(name=name)
         self.num_tags = num_tags
         self.scale_loss = scale_loss
-        self.transition_regularizer = tf.keras.regularizers.l2(reg_lambda)
+        self.transition_regularizer = keras.regularizers.l2(reg_lambda)
         self.f1_score_metric = F1Score(
             num_classes=num_tags - 1,  # `0` prediction is not a prediction
             average="micro",
@@ -682,7 +682,7 @@ class CRF(tf_keras.layers.Layer):
         return self.f1_score_metric(tag_ids_flat_one_hot, pred_ids_flat_one_hot)
 
 
-class DotProductLoss(tf_keras.layers.Layer):
+class DotProductLoss(keras.layers.Layer):
     """Abstract dot-product loss layer class.
 
     Idea based on StarSpace paper: http://arxiv.org/abs/1709.03856

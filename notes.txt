@@ -7,6 +7,77 @@ make prepare-transformers
 
 TF 2.16 makes a big jump to keras 3.x
 
+Debugging None target causing keras failure:
+- test_processor.py::test_from_trigger_intent_with_mapping_conditions_when_form_not_activated, happy path
+- looking for how "target" is used within model. I think
+  "target" is the prediction target? Does that map to the
+  extracted features in the training data?
+- training data is list of nlu.training_data.message
+- diet_classifier appears to be training for intent from text
+- model_data_utils.py::featurize_training_examples converts high-level Message
+  examples into dict[attribute: tensor]. Presumably which attributes to
+  use for what is tracked at a higher level.
+- in model_data_utils.py::convert_to_data_format, the "features" are only
+  needed if we're training. I think this is clearly the "target" for
+  training.
+- no absent features during training, all examples have predicted data
+- _extract_features produces sparse "sequence" and "sentence" features
+  (both of attribute type 'text'). I think this is just reshaping the data
+  and pulling the feature type to the top of the dict and combining the
+  sparse arrays underneath those keys.
+- _feature_arrays_for_attribute then recombines sparse and dense feature data
+- convert_to_data_format attribute data (ordereddict):
+  - data['intent']['sequence'][0] = np.array(shape=(71,))
+  - data['text']['sequence'][0] = -"-
+  - data['text']['sentence'][0] = -"-
+- _create_model_data instantiates RasaModelData and adds data from above ^
+- _add_label_features: map intent names to numeric IDs and sets
+  - data['label']['id'][0] = intent_id_list (!!! but on line 800 this value shows error in the debugger?)
+    - looks like this might just be a problem with how FeatureArray() is displayed
+  - note that the $label_attribute is 'intent'
+  - renames data['intent'] to data['label']
+- return up the stack to DIETClassifier::train()
+  - self.component_config.get(ENTITY_RECOGNITION) is True but no entities in
+    entity_examples, should that be an error? Why is ENTITY_RECOGNITION set?
+  - runs self.model = self._instantiate_model_class (DIET(keras.src.models.Model)) and self.model.compile()
+  - NOW we create_data_generators() (RasaBatchDataGenerator)!
+  - TensorFlowTrainer::fit() calls TFEpochGenerator, referencing RasaBatchDataGenerator
+    - TFEpochGenerator::__init__() -> self.data_adapter.get_tf_dataset()
+      - batches = self._standardize_batch for *self.py_dataset[i]*
+        - RasaBatchDataGenerator::prepare_batch(0:64)
+          - is the batching the first 64 elements of the 71 examples?
+        - returns the first 64 feature vectors for each subkey, padded up to 64 
+        - _standardize_batch *might* be what changed to break this
+        - _standardize_batch seems to be ok if len(batch) == 1
+      - the dataset is small so there's only one batch
+      - pass batches to data_adapter_utils.get_tensor_spec(batches) to determine _output_signature
+        - tree.map_structure(get_single_tensor_spec, *batches)
+          - this is just "apply to each element in the tree" it seems?
+          - BUT this applies to *EACH ELEMENT OF BATCHES* and they must have the SAME STRUCTURE
+          - this is not the case if we return None for the targets!
+Options:
+- determine PyDatasetAdapter._output_signature before get_tf_dataset gets called?
+- return only the first element from batches instead of a tuple of (x, None)
+  - this does give us an (apparently) valid _output_signature
+  - TFEpochIterator::__init__ returns
+    - ValueError: Only input tensors may be passed as positional arguments. The following argument value should be passed as a keyword argument: True (of type <class 'bool'>)
+
+rasa/utils/tensorflow/rasa_layers.py:333: in call
+    f = self._process_sparse_feature(f, training)
+rasa/utils/tensorflow/rasa_layers.py:303: in _process_sparse_feature
+    feature = self._tf_layers[self.SPARSE_DROPOUT](feature, training)
+
+-> results in unbuilt warnings about not being able to run __call__()
+after fixing that:
+
+tests/core/test_processor.py::test_from_trigger_intent_with_mapping_conditions_when_form_not_activated[happy_path-Hi-greet]
+  /workspaces/rasa/venv/lib/python3.10/site-packages/keras/src/layers/layer.py:1474: UserWarning: Layer 'rasa_sequence_layer_text' looks like it has unbuilt state, but Keras is not able to trace the layer `call()` in order to build it automatically. Possible causes:
+  1. The `call()` method of your layer may be crashing. Try to `__call__()` the layer eagerly on some test input first to see if it works. E.g. `x = np.random.random((3, 4)); y = layer(x)`
+  2. If the `call()` method is correct, then you may need to implement the `def build(self, input_shape)` method on your layer. It should create all variables used by the layer (e.g. by calling `layer.build()` on all its children layers).
+  Exception encountered: '''RandomlyConnectedDense' object has no attribute 'kernel_mask'''
+    warnings.warn(
+
+
 TODO:
 short-term:
     * silence pykwalify load_module() warnings

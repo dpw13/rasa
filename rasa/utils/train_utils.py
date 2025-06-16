@@ -364,13 +364,13 @@ def create_common_callbacks(
     Returns:
         A list of callbacks.
     """
-    import tensorflow as tf
+    import keras
 
     callbacks = [RasaTrainingLogger(epochs, silent=False)]
 
     if tensorboard_log_dir:
         callbacks.append(
-            tf.keras.callbacks.TensorBoard(
+            keras.callbacks.TensorBoard(
                 log_dir=tensorboard_log_dir,
                 update_freq=tensorboard_log_level,
                 write_graph=True,

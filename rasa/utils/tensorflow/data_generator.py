@@ -30,6 +30,7 @@ class RasaDataGenerator(Sequence):
             batch_strategy: The batch strategy.
             shuffle: If 'True', data should be shuffled.
         """
+        super().__init__()
         self.model_data = model_data
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -121,6 +122,8 @@ class RasaDataGenerator(Sequence):
                         batch_data.append(RasaDataGenerator._pad_dense_data(_data))
 
         # len of batch_data is equal to the number of keys in model data
+        # TODO: something is wrong here. It looks like what we're returning isn't getting properly parsed or handled.
+        # I'm not sure, but this may be intended to be an ndarray
         return tuple(batch_data)
 
     @staticmethod
@@ -401,7 +404,11 @@ class RasaBatchDataGenerator(RasaDataGenerator):
 
         # return input and target data, as our target data is inside the input
         # data return None for the target data
-        return self.prepare_batch(self._data, start, end), None
+        # UPDATE: with tensorflow 2.16 the batch MUST have the same structure
+        # for each element of the tuple. At the very least, returning None for
+        # one element of the tuple results in an exception. Tuples with a size
+        # of only 1 are allowed, so just return a tuple of the one thing we have.
+        return (self.prepare_batch(self._data, start, end),)
 
     def on_epoch_end(self) -> None:
         """Update the data after every epoch."""

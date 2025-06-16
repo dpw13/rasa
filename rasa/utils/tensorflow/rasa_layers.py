@@ -29,9 +29,9 @@ from rasa.utils.tensorflow import layers
 from rasa.utils.tensorflow.exceptions import TFLayerConfigException
 from rasa.utils.tensorflow.transformer import TransformerEncoder
 from rasa.nlu.constants import DEFAULT_TRANSFORMER_SIZE
-import tf_keras
+import keras
 
-class RasaCustomLayer(tf_keras.layers.Layer):
+class RasaCustomLayer(keras.layers.Layer):
     """Parent class for all classes in `rasa_layers.py`.
 
     Allows a shared implementation for adjusting `DenseForSparse`
@@ -43,6 +43,12 @@ class RasaCustomLayer(tf_keras.layers.Layer):
     `RasaFeatureCombiningLayer` all inherit from `RasaCustomLayer` and thus can
     change their own `DenseForSparse` layers if it's needed.
     """
+
+    def __init__(self, name: str):
+        super().__init__(name=name)
+
+        self._tf_layers: Dict[Text, keras.layers.Layer] = {}
+
 
     def adjust_sparse_layers_for_incremental_training(
         self,
@@ -165,6 +171,11 @@ class RasaCustomLayer(tf_keras.layers.Layer):
         )
         return new_layer
 
+    def build(self, input_shape):
+        """Does nothing for now apart from calling build() on all child layers."""
+        # TODO: compare input shape to expected shapes from init
+        raise ValueError(f"build() MUST be defined for {self.__class__.__name__}. {len(self._tf_layers)} child layers not built.")
+
 
 class ConcatenateSparseDenseFeatures(RasaCustomLayer):
     """Combines multiple sparse and dense feature tensors into one dense tensor.
@@ -232,7 +243,7 @@ class ConcatenateSparseDenseFeatures(RasaCustomLayer):
         )
 
         # Prepare dropout and sparse-to-dense layers if any sparse tensors are expected
-        self._tf_layers: Dict[Text, tf_keras.layers.Layer] = {}
+        self._tf_layers: Dict[Text, keras.layers.Layer] = {}
         if any([signature.is_sparse for signature in feature_type_signature]):
             self._prepare_layers_for_sparse_tensors(attribute, feature_type, config)
 
@@ -271,7 +282,7 @@ class ConcatenateSparseDenseFeatures(RasaCustomLayer):
         # For optionally apply dropout to sparse tensors after they're converted to
         # dense tensors.
         if config[DENSE_INPUT_DROPOUT]:
-            self._tf_layers[self.DENSE_DROPOUT] = tf_keras.layers.Dropout(
+            self._tf_layers[self.DENSE_DROPOUT] = keras.layers.Dropout(
                 rate=config[DROP_RATE]
             )
 
@@ -300,12 +311,12 @@ class ConcatenateSparseDenseFeatures(RasaCustomLayer):
     ) -> tf.Tensor:
         """Turns sparse tensor into dense, possibly adds dropout before and/or after."""
         if self.SPARSE_DROPOUT in self._tf_layers:
-            feature = self._tf_layers[self.SPARSE_DROPOUT](feature, training)
+            feature = self._tf_layers[self.SPARSE_DROPOUT](feature, training=training)
 
         feature = self._tf_layers[self.SPARSE_TO_DENSE](feature)
 
         if self.DENSE_DROPOUT in self._tf_layers:
-            feature = self._tf_layers[self.DENSE_DROPOUT](feature, training)
+            feature = self._tf_layers[self.DENSE_DROPOUT](feature, training=training)
 
         return feature
 
@@ -330,7 +341,7 @@ class ConcatenateSparseDenseFeatures(RasaCustomLayer):
         dense_features = []
         for f in features:
             if isinstance(f, tf.SparseTensor):
-                f = self._process_sparse_feature(f, training)
+                f = self._process_sparse_feature(feature=f, training=training)
             dense_features.append(f)
 
         # Now that all features are made dense, concatenate them along the last (units)
@@ -402,8 +413,6 @@ class RasaFeatureCombiningLayer(RasaCustomLayer):
             )
 
         super().__init__(name=f"rasa_feature_combining_layer_{attribute}")
-
-        self._tf_layers: Dict[Text, tf_keras.layers.Layer] = {}
 
         # Prepare sparse-dense combining layers for each present feature type
         self._feature_types_present = self._get_present_feature_types(
@@ -943,7 +952,7 @@ class RasaSequenceLayer(RasaCustomLayer):
         # Note that only sequence-level features are masked, nothing happens to the
         # sentence-level features in the combined features tensor.
         seq_sent_features, mlm_boolean_mask = self._tf_layers[self.MLM_INPUT_MASK](
-            seq_sent_features, mask_sequence, training
+            seq_sent_features, mask_sequence, training=training
         )
 
         return seq_sent_features, token_ids, mlm_boolean_mask
@@ -1001,7 +1010,7 @@ class RasaSequenceLayer(RasaCustomLayer):
         ]((sequence_features, sentence_features, sequence_feature_lengths))
 
         # Apply one or more dense layers.
-        seq_sent_features = self._tf_layers[self.FFNN](seq_sent_features, training)
+        seq_sent_features = self._tf_layers[self.FFNN](seq_sent_features, training=training)
 
         # If using masked language modeling, mask the transformer inputs and get labels
         # for the masked tokens and a boolean mask. Note that TED does not use MLM loss,
@@ -1030,7 +1039,7 @@ class RasaSequenceLayer(RasaCustomLayer):
         if self._has_transformer:
             mask_padding = 1 - mask_combined_sequence_sentence
             outputs, attention_weights = self._tf_layers[self.TRANSFORMER](
-                seq_sent_features_masked, mask_padding, training
+                seq_sent_features_masked, mask_padding, training=training
             )
             outputs = tf.nn.gelu(outputs)
         else:

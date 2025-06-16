@@ -10,6 +10,7 @@ from rasa.nlu.featurizers.featurizer import Featurizer
 import numpy as np
 import scipy.sparse
 import tensorflow as tf
+import keras
 
 from typing import Any, Dict, List, Optional, Text, Tuple, Union, TypeVar, Type
 
@@ -908,7 +909,7 @@ class DIETClassifier(GraphComponent, IntentClassifier, EntityExtractorMixin):
             # No pre-trained model to load from. Create a new instance of the model.
             self.model = self._instantiate_model_class(model_data)
             self.model.compile(
-                optimizer=tf.keras.optimizers.Adam(
+                optimizer=keras.optimizers.Adam(
                     self.component_config[LEARNING_RATE]
                 ),
                 run_eagerly=self.component_config[RUN_EAGERLY],
@@ -939,8 +940,9 @@ class DIETClassifier(GraphComponent, IntentClassifier, EntityExtractorMixin):
             self.tmp_checkpoint_dir,
         )
 
+        keras.config.disable_traceback_filtering()
         self.model.fit(
-            data_generator,
+            x=data_generator,
             epochs=self.component_config[EPOCHS],
             validation_data=validation_data_generator,
             validation_freq=self.component_config[EVAL_NUM_EPOCHS],
@@ -1396,17 +1398,17 @@ class DIET(TransformerRasaModel):
     def _create_metrics(self) -> None:
         # self.metrics will have the same order as they are created
         # so create loss metrics first to output losses first
-        self.mask_loss = tf.keras.metrics.Mean(name="m_loss")
-        self.intent_loss = tf.keras.metrics.Mean(name="i_loss")
-        self.entity_loss = tf.keras.metrics.Mean(name="e_loss")
-        self.entity_group_loss = tf.keras.metrics.Mean(name="g_loss")
-        self.entity_role_loss = tf.keras.metrics.Mean(name="r_loss")
+        self.mask_loss = keras.metrics.Mean(name="m_loss")
+        self.intent_loss = keras.metrics.Mean(name="i_loss")
+        self.entity_loss = keras.metrics.Mean(name="e_loss")
+        self.entity_group_loss = keras.metrics.Mean(name="g_loss")
+        self.entity_role_loss = keras.metrics.Mean(name="r_loss")
         # create accuracy metrics second to output accuracies second
-        self.mask_acc = tf.keras.metrics.Mean(name="m_acc")
-        self.intent_acc = tf.keras.metrics.Mean(name="i_acc")
-        self.entity_f1 = tf.keras.metrics.Mean(name="e_f1")
-        self.entity_group_f1 = tf.keras.metrics.Mean(name="g_f1")
-        self.entity_role_f1 = tf.keras.metrics.Mean(name="r_f1")
+        self.mask_acc = keras.metrics.Mean(name="m_acc")
+        self.intent_acc = keras.metrics.Mean(name="i_acc")
+        self.entity_f1 = keras.metrics.Mean(name="e_f1")
+        self.entity_group_f1 = keras.metrics.Mean(name="g_f1")
+        self.entity_role_f1 = keras.metrics.Mean(name="r_f1")
 
     def _update_metrics_to_log(self) -> None:
         debug_log_level = logging.getLogger("rasa").level == logging.DEBUG
