@@ -11,7 +11,7 @@ services:
       - ~/.cache/vscode:/home/vscode/.cache
 
     # Overrides default command so things don't shut down after the process ends.
-    command: /bin/sh -c "while true; sleep 1; done"
+    command: /bin/sh -c "tail -f /dev/null"
 
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     network_mode: service:db
