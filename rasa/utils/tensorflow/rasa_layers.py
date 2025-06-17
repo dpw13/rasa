@@ -1,3 +1,4 @@
+import logging
 import tensorflow as tf
 import numpy as np
 from typing import Text, List, Dict, Any, Union, Optional, Tuple, Callable
@@ -30,6 +31,9 @@ from rasa.utils.tensorflow.exceptions import TFLayerConfigException
 from rasa.utils.tensorflow.transformer import TransformerEncoder
 from rasa.nlu.constants import DEFAULT_TRANSFORMER_SIZE
 import keras
+
+logger = logging.getLogger(__name__)
+
 
 class RasaCustomLayer(keras.layers.Layer):
     """Parent class for all classes in `rasa_layers.py`.
@@ -171,9 +175,8 @@ class RasaCustomLayer(keras.layers.Layer):
         )
         return new_layer
 
-    def build(self, input_shape):
-        """Does nothing for now apart from calling build() on all child layers."""
-        # TODO: compare input shape to expected shapes from init
+    def build(self, input_shape: Union[tf.TensorShape, List[tf.TensorShape]]) -> None:
+        """Creates the variables of the layer."""
         raise ValueError(f"build() MUST be defined for {self.__class__.__name__}. {len(self._tf_layers)} child layers not built.")
 
 
@@ -319,6 +322,26 @@ class ConcatenateSparseDenseFeatures(RasaCustomLayer):
             feature = self._tf_layers[self.DENSE_DROPOUT](feature, training=training)
 
         return feature
+
+    def build(self, input_shape: List[tf.TensorShape]) -> None:
+        logger.debug("Building %s for shape %s, %d child layers", type(self), input_shape, len(self._tf_layers))
+        shape_in = input_shape[0]
+
+        if self.SPARSE_TO_DENSE in self._tf_layers:
+            # The following layers are only used if we expect sparse tensors
+            if self.SPARSE_DROPOUT in self._tf_layers:
+                # TODO: create function to translate input shape to output shape instead
+                # of needing to know that at this level.
+                self._tf_layers[self.SPARSE_DROPOUT].build(shape_in)
+                # Sparse dropout has same shape output as input
+
+            s2d = self._tf_layers[self.SPARSE_TO_DENSE]
+            s2d.build(shape_in)
+            out_dims = (*shape_in[:-1], s2d.get_units())
+
+            if self.DENSE_DROPOUT in self._tf_layers:
+                self._tf_layers[self.DENSE_DROPOUT].build(out_dims)
+
 
     def call(
         self,
@@ -613,6 +636,58 @@ class RasaFeatureCombiningLayer(RasaCustomLayer):
             combined_sequence_sentence_feature_lengths = sequence_feature_lengths
 
         return sentence_features_combined, combined_sequence_sentence_feature_lengths
+
+    # Call after build()
+    def get_output_shape(self) -> Tuple[tf.TensorShape, tf.TensorShape]:
+        return self.expected_output_shapes
+
+    def build(self, input_shape: Tuple[
+            List[tf.TensorShape],
+            List[tf.TensorShape],
+            tf.TensorShape]) -> None:
+        logger.debug("Building %s for shape %s, %d child layers", type(self), input_shape, len(self._tf_layers))
+
+        sequence_features_shape = input_shape[0]
+        sentence_features_shape = input_shape[1]
+        sequence_feature_lengths_shape = input_shape[2]
+
+        self.expected_input_shapes = input_shape
+
+        # Assume all tensors in the list are the same shape
+        batch_size, max_seq_len, _ = sequence_features_shape[0]
+
+        output_seq_len = 0
+        seq_features_comb_shape = None
+        if self._feature_types_present[SEQUENCE]:
+            output_seq_len += max_seq_len
+            self._tf_layers[f"sparse_dense.{SEQUENCE}"].build(
+                sequence_features_shape
+            )
+            seq_features_comb_shape = "seq_features_comb_shape unknown"
+
+        snt_features_comb_shape = None
+        if self._feature_types_present[SENTENCE]:
+            output_seq_len += 1
+            self._tf_layers[f"sparse_dense.{SENTENCE}"].build(
+                sentence_features_shape
+            )
+            snt_features_comb_shape = "snt_features_comb_shape unknown"
+
+        if seq_features_comb_shape is not None and snt_features_comb_shape is not None:
+            if f"unify_dims_before_seq_sent_concat.{SEQUENCE}" in self._tf_layers:
+                self._tf_layers[
+                    f"unify_dims_before_seq_sent_concat.{SEQUENCE}"
+                ].build(seq_features_comb_shape)
+            if f"unify_dims_before_seq_sent_concat.{SENTENCE}" in self._tf_layers:
+                self._tf_layers[
+                    f"unify_dims_before_seq_sent_concat.{SENTENCE}"
+                ].build(snt_features_comb_shape)
+
+        combined_features_shape = (batch_size, output_seq_len, self.output_units)
+        mask_shape = (batch_size, output_seq_len, 1)
+
+        self.expected_output_shapes = (combined_features_shape, mask_shape)
+
 
     def call(
         self,
@@ -956,6 +1031,30 @@ class RasaSequenceLayer(RasaCustomLayer):
         )
 
         return seq_sent_features, token_ids, mlm_boolean_mask
+
+    def build(self, input_shape: Tuple[
+            List[tf.TensorShape],
+            List[tf.TensorShape],
+            tf.TensorShape]) -> None:
+        logger.debug("Building %s for shape %s, %d child layers", type(self), input_shape, len(self._tf_layers))
+        sequence_features_shape = input_shape[0]
+        sentence_features_shape = input_shape[1]
+        sequence_feature_lengths_shape = input_shape[2]
+
+        # Combine all features (sparse/dense, sequence-/sentence-level) into one tensor
+        self._tf_layers[self.FEATURE_COMBINING].build(input_shape)
+        comb_shape, mask_shape = self._tf_layers[self.FEATURE_COMBINING].get_output_shape()
+        logger.debug("Combined shape: %s", comb_shape)
+
+        # Apply one or more dense layers.
+        self._tf_layers[self.FFNN].build(comb_shape)
+
+        if self._enables_mlm:
+            self._tf_layers[self.MLM_INPUT_MASK].build((comb_shape, mask_shape))
+
+        if self._has_transformer:
+            # seq_sent_features_masked, mask_padding
+            self._tf_layers[self.TRANSFORMER].build((comb_shape, mask_shape))
 
     def call(
         self,

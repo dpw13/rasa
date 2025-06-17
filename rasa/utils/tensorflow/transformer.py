@@ -1,4 +1,5 @@
-from typing import Optional, Text, Tuple, Union
+import logging
+from typing import Optional, List, Text, Tuple, Union
 
 import numpy as np
 import tensorflow as tf
@@ -10,6 +11,8 @@ import keras
 
 import rasa.shared.utils.cli
 from rasa.utils.tensorflow.layers import RandomlyConnectedDense
+
+logger = logging.getLogger(__name__)
 
 
 # from https://www.tensorflow.org/tutorials/text/transformer
@@ -336,6 +339,19 @@ class MultiHeadAttention(keras.layers.Layer):
         # (batch_size, length, units)
         return tf.reshape(x, (tf.shape(x)[0], -1, self.units))
 
+    def build(self, input_shape: List[tf.TensorShape]):
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        query_shape = input_shape[0]
+        source_shape = input_shape[1]
+
+        self._query_dense_layer.build(query_shape)
+        self._key_dense_layer.build(source_shape)
+        self._value_dense_layer.build(source_shape)
+
+        # Need to check, but looks like _output_dense_layer input should
+        # have same shape as query_input
+        self._output_dense_layer.build(query_shape)
+
     # noinspection PyMethodOverriding
     def call(
         self,
@@ -419,6 +435,8 @@ class TransformerEncoderLayer(keras.layers.Layer):
         heads_share_relative_embedding: bool = False,
     ) -> None:
         super().__init__()
+        self.units = units
+        self.filter_units = filter_units
 
         self._layer_norm = keras.layers.LayerNormalization(epsilon=1e-6)
         self._mha = MultiHeadAttention(
@@ -434,7 +452,7 @@ class TransformerEncoderLayer(keras.layers.Layer):
         )
         self._dropout = keras.layers.Dropout(dropout_rate)
 
-        self._ffn_layers = [
+        self._ffn_layers: List[keras.layers.Layer] = [
             keras.layers.LayerNormalization(epsilon=1e-6),
             RandomlyConnectedDense(
                 units=filter_units, activation=tf.nn.gelu, density=density
@@ -445,6 +463,27 @@ class TransformerEncoderLayer(keras.layers.Layer):
             ),  # (batch_size, length, units)
             keras.layers.Dropout(dropout_rate),
         ]
+
+    def build(self, input_shape: List[tf.TensorShape]):
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+
+        self.expected_inputs_shape = input_shape
+        x_shape = input_shape[0]
+        pad_shape = input_shape[1]
+        # Ignore training shape
+
+        self._layer_norm.build(x_shape)
+        self._mha.build((x_shape, x_shape, pad_shape))
+        self._dropout.build(x_shape)
+
+        # This is hideous, there has to be a better way
+        self._ffn_layers[0].build(x_shape)
+        self._ffn_layers[1].build(x_shape)
+        x_shape = (*x_shape[:-1], self.filter_units)
+        self._ffn_layers[2].build(x_shape)
+        self._ffn_layers[3].build(x_shape)
+        x_shape = (*x_shape[:-1], self.units)
+        self._ffn_layers[4].build(x_shape)
 
     def call(
         self,
@@ -463,6 +502,11 @@ class TransformerEncoderLayer(keras.layers.Layer):
         Returns:
             Transformer encoder layer output with shape [batch_size, length, units]
         """
+        if x.shape != self.expected_inputs_shape[0]:
+            raise ValueError("Expected shape mismatch: %s != %s", x.shape, self.expected_inputs_shape[0])
+        if isinstance(pad_mask, tf.Tensor) and pad_mask.shape != self.expected_inputs_shape[1]:
+            raise ValueError("Expected shape mismatch: %s != %s", pad_mask.shape, self.expected_inputs_shape[1])
+
         if training is None:
             training = K.learning_phase()
 
@@ -587,6 +631,29 @@ class TransformerEncoder(keras.layers.Layer):
         pad_mask = 1 - tf.linalg.band_part(tf.ones((max_position, max_position)), -1, 0)
         return pad_mask[tf.newaxis, tf.newaxis, :, :]  # (1, 1, seq_len, seq_len)
 
+    def build(self, input_shape: List[tf.TensorShape]):
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        self.expected_inputs_shape = input_shape
+        x_shape = input_shape[0]
+        pad_mask_in_shape = input_shape[1]
+        # Discard training
+
+        self._embedding.build(x_shape)
+        emb_shape = (*x_shape[:-1], self.units)
+        self._dropout.build(emb_shape)
+
+        pad_mask_batch = pad_mask_in_shape[0]
+        pad_mask_len = pad_mask_in_shape[1]
+        if self.unidirectional:
+            pad_mask_shape = (pad_mask_batch, 1, pad_mask_len, pad_mask_len)
+        else:
+            pad_mask_shape = (pad_mask_batch, 1, 1, pad_mask_len)
+
+        for layer in self._enc_layers:
+            layer.build([emb_shape, pad_mask_shape])
+
+        self._layer_norm.build(emb_shape)
+
     def call(
         self,
         x: tf.Tensor,
@@ -604,6 +671,11 @@ class TransformerEncoder(keras.layers.Layer):
         Returns:
             Transformer encoder output with shape [batch_size, length, units]
         """
+        if x.shape != self.expected_inputs_shape[0]:
+            raise ValueError("Expected shape mismatch: %s != %s", x.shape, self.expected_inputs_shape[0])
+        if isinstance(pad_mask, tf.Tensor) and pad_mask.shape != self.expected_inputs_shape[1]:
+            raise ValueError("Expected shape mismatch: %s != %s", pad_mask.shape, self.expected_inputs_shape[1])
+
         # adding embedding and position encoding.
         x = self._embedding(x)  # (batch_size, length, units)
         x *= tf.math.sqrt(tf.cast(self.units, tf.float32))

@@ -56,6 +56,11 @@ class SparseDropout(keras.layers.Dropout):
         rate: Fraction of the input units to drop (between 0 and 1).
     """
 
+    def build(self, input_shape: tf.TensorShape) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        self.expected_x_shape = input_shape
+        super().build(input_shape)
+
     def call(
         self, inputs: tf.SparseTensor, training: Optional[Union[tf.Tensor, bool]] = None
     ) -> tf.SparseTensor:
@@ -192,6 +197,12 @@ class DenseForSparse(keras.layers.Dense):
                 return attribute
         return None
 
+    def build(self, input_shape: tf.TensorShape) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        self.expected_x_shape = input_shape
+        super().build(input_shape)
+        # nop
+
     def call(self, inputs: tf.SparseTensor) -> tf.Tensor:
         """Apply dense layer to sparse inputs.
 
@@ -284,6 +295,7 @@ class RandomlyConnectedDense(keras.layers.Dense):
             raise TFLayerConfigException("Layer density must be in [0, 1].")
 
         self.density = density
+        self.kernel_mask = None
 
     def build(self, input_shape: tf.TensorShape) -> None:
         """Prepares the kernel mask.
@@ -291,6 +303,8 @@ class RandomlyConnectedDense(keras.layers.Dense):
         Args:
             input_shape: Shape of the inputs to this layer
         """
+        logger.debug("Building %s for shape %s, density %f", type(self), input_shape, self.density)
+        self.expected_x_shape = input_shape
         super().build(input_shape)
 
         if self.density == 1.0:
@@ -366,7 +380,11 @@ class RandomlyConnectedDense(keras.layers.Dense):
         Returns:
             The processed inputs.
         """
+        if inputs.shape != self.expected_x_shape:
+            raise ValueError("Expected shape mismatch: %s != %s", inputs.shape, self.expected_x_shape)
+
         if self.density < 1.0:
+            assert self.kernel_mask is not None, f"Build must be called before call(). Density {self.density} input {inputs.shape}"
             # Set fraction of the `kernel` weights to zero according to precomputed mask
             self.kernel.assign(self.kernel * self.kernel_mask)
         return super().call(inputs)
@@ -404,7 +422,7 @@ class Ffnn(keras.layers.Layer):
         super().__init__(name=f"ffnn_{layer_name_suffix}")
 
         l2_regularizer = keras.regularizers.l2(reg_lambda)
-        self._ffn_layers = []
+        self._ffn_layers: List[keras.layers.Layer] = []
         for i, layer_size in enumerate(layer_sizes):
             self._ffn_layers.append(
                 RandomlyConnectedDense(
@@ -417,10 +435,20 @@ class Ffnn(keras.layers.Layer):
             )
             self._ffn_layers.append(keras.layers.Dropout(dropout_rate))
 
+    def build(self, input_shape: tf.TensorShape):
+        logger.debug("Building %s for shape %s, %d child layers", type(self), input_shape, len(self._ffn_layers))
+        self.expected_inputs_shape = input_shape
+        for layer in self._ffn_layers:
+            # Discard training arg
+            layer.build(input_shape)
+
     def call(
         self, x: tf.Tensor, training: Optional[Union[tf.Tensor, bool]] = None
     ) -> tf.Tensor:
         """Apply feed-forward network layer."""
+        if x.shape != self.expected_inputs_shape:
+            raise ValueError("Expected x shape mismatch: %s != %s", x.shape, self.expected_inputs_shape)
+
         for layer in self._ffn_layers:
             x = layer(x, training=training)
 
@@ -461,9 +489,17 @@ class Embed(keras.layers.Layer):
             name=f"embed_layer_{layer_name_suffix}",
         )
 
+    def build(self, input_shape: tf.TensorShape) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        self.expected_x_shape = input_shape
+        self._dense.build(input_shape)
+
     # noinspection PyMethodOverriding
     def call(self, x: tf.Tensor) -> tf.Tensor:
         """Apply dense layer."""
+        if x.shape != self.expected_x_shape:
+            raise ValueError("Expected shape mismatch: %s != %s", x.shape, self.expected_x_shape)
+
         x = self._dense(x)
         return x
 
@@ -490,6 +526,8 @@ class InputMask(keras.layers.Layer):
         self._random_vector_prob = 0.1
 
     def build(self, input_shape: tf.TensorShape) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        self.expected_x_shape = input_shape
         self.mask_vector = self.add_weight(
             shape=(1, 1, input_shape[-1]), name="mask_vector"
         )
@@ -514,6 +552,9 @@ class InputMask(keras.layers.Layer):
         Returns:
             A tuple of masked inputs and boolean mask.
         """
+        if x.shape != self.expected_x_shape:
+            raise ValueError("Expected shape mismatch: %s != %s", x.shape, self.expected_x_shape)
+
         if training is None:
             training = K.learning_phase()
 
@@ -597,7 +638,9 @@ class CRF(keras.layers.Layer):
             average="micro",
         )
 
-    def build(self, input_shape: tf.TensorShape) -> None:
+    def build(self, input_shape: Tuple[tf.TensorShape, tf.TensorShape]) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        self.expected_input_shape = input_shape
         # the weights should be created in `build` to apply random_seed
         self.transition_params = self.add_weight(
             shape=(self.num_tags, self.num_tags),
@@ -623,6 +666,11 @@ class CRF(keras.layers.Layer):
             A [batch_size, max_seq_len] matrix, with dtype `tf.float32`.
             Contains the confidence values of the highest scoring tag indices.
         """
+        if logits.shape != self.expected_input_shape[0]:
+            raise ValueError("Expected logits shape mismatch: %s != %s", logits.shape, self.expected_input_shape[0])
+        if sequence_lengths.shape != self.expected_input_shape[1]:
+            raise ValueError("Expected logits shape mismatch: %s != %s", sequence_lengths.shape, self.expected_input_shape[1])
+
         predicted_ids, scores, _ = rasa.utils.tensorflow.crf.crf_decode(
             logits, self.transition_params, sequence_lengths
         )
@@ -796,6 +844,10 @@ class DotProductLoss(keras.layers.Layer):
         if self.model_confidence == SOFTMAX:
             confidences = tf.nn.softmax(similarities)
         return similarities, confidences
+
+    def build(self, input_shape: Any) -> None:
+        """Layer's logic - to be implemented in child class."""
+        raise NotImplementedError
 
     def call(self, *args: Any, **kwargs: Any) -> Tuple[tf.Tensor, tf.Tensor]:
         """Layer's logic - to be implemented in child class."""
@@ -1153,6 +1205,10 @@ class SingleLabelDotProductLoss(DotProductLoss):
                 f"should be '{MARGIN}' or '{CROSS_ENTROPY}'"
             )
 
+    def build(self, input_shape: tf.TensorShape) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        raise ValueError("Not implemented yet")
+
     # noinspection PyMethodOverriding
     def call(
         self,
@@ -1252,6 +1308,10 @@ class MultiLabelDotProductLoss(DotProductLoss):
             constrain_similarities=constrain_similarities,
             model_confidence=model_confidence,
         )
+
+    def build(self, input_shape: tf.TensorShape) -> None:
+        logger.debug("Building %s for shape %s", type(self), input_shape)
+        raise ValueError("Not implemented yet")
 
     def call(
         self,

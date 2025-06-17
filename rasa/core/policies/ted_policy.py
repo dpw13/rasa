@@ -1437,7 +1437,7 @@ class TED(TransformerRasaModel):
 
         dialogue_transformed, attention_weights = self._tf_layers[
             f"transformer.{DIALOGUE}"
-        ](dialogue_in, 1 - mask, self._training)
+        ](dialogue_in, 1 - mask, training=self._training)
         dialogue_transformed = tf.nn.gelu(dialogue_transformed)
 
         if self.max_history_featurizer_is_used:
@@ -1682,7 +1682,7 @@ class TED(TransformerRasaModel):
 
         if attribute in SENTENCE_FEATURES_TO_ENCODE + LABEL_FEATURES_TO_ENCODE:
             attribute_features = self._tf_layers[f"encoding_layer.{attribute}"](
-                attribute_features, self._training
+                attribute_features, training=self._training
             )
 
         # attribute features have shape
