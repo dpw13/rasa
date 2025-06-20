@@ -1616,7 +1616,7 @@ def _serve_application(
 
     update_sanic_log_level()
 
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, single_process=True)
 
     return app
 
@@ -1646,7 +1646,7 @@ def start_visualization(image_path: Text, port: int) -> None:
 
     update_sanic_log_level()
 
-    app.run(host="0.0.0.0", port=port, access_log=False)
+    return app.run(host="0.0.0.0", port=port, access_log=False, single_process=True)
 
 
 def run_interactive_learning(
