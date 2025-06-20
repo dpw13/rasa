@@ -1,0 +1,123 @@
+version: "3.1"
+
+intents:
+  - adjust
+  - get_status
+  #- weather
+  #- diagnostics
+
+entities:
+  - location
+  - device
+  - amount
+  - query
+
+slots:
+  location:
+    type: categorical
+    values:
+      - basement
+      - main floor
+      - upstairs
+      - outside
+      - upstairs
+      - master bedroom
+      - guest bedroom
+      - kitchen
+      - dining room
+      - living room
+      - downstairs
+      - office  
+    mappings:
+      - type: from_entity
+        entity: location
+  device:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: device
+  # Could also be called "state"
+  amount:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: amount
+  # Calculated on extract_amount
+  amount_val:
+    type: float
+    mappings:
+      - type: custom
+  amount_type:
+    type: categorical
+    values:
+      - absolute
+      - relative
+    mappings:
+      - type: custom
+
+  query:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: query
+  #city:
+  #  type: text
+  #  mappings:
+  #    - type: from_entity
+  #      entity: city
+
+forms:
+  adjust_form:
+    required_slots:
+      - location
+      - device
+      - amount
+      - amount_type
+      - amount_val
+
+actions:
+  - validate_adjust_form
+
+responses:
+  utter_done:
+  - text: "Done."
+
+  utter_ask_location:
+  - text: "Sure, where or which {device} do you want to adjust?"
+
+  utter_ask_device:
+  - condition:
+    - type: slot
+      name: amount
+      # TODO: can we specify multiple values to match?
+      value: on
+    text: "Sure, which device do you want to turn {amount}?"
+  - condition:
+    - type: slot
+      name: amount_type
+      value: absolute
+    text: "Sure, which device do you want to set?"
+  # Default ask_device response
+  - text: "Sure, which device do you want to adjust?"
+
+  utter_ask_amount:
+  - text: "How would you like to adjust the {device}?"
+
+  utter_response_count:
+  - text: "there are currently {answer_num} {device} {amount} {location}"
+
+  utter_response_single:
+  - text: "the {location} {device} is currently set to {amount}"
+
+  utter_action_complete:
+  - text: "Set {device} to {amount}. Anything else?"
+
+  utter_unknown:
+  - text: "Sorry, I'm not sure how to do that."
+
+  utter_confirm:
+  - text: "Was that right?"
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

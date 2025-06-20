@@ -1,0 +1,63 @@
+version: "3.1"
+
+stories:
+
+# Adjust
+
+- story: set fan
+  steps:
+  - intent: adjust
+    entities:
+      - device: fan
+      - amount: up
+  - action: adjust_form
+  - action: utter_action_complete
+
+- story: set lights
+  steps:
+  - intent: adjust
+    entities:
+      - device: lights
+      - amount: on
+  - action: adjust_form
+  - action: utter_action_complete
+
+- story: set room lights
+  steps:
+  - intent: adjust
+    entities:
+      - device: lights
+      - location: upstairs
+      - amount: off
+  - action: adjust_form
+  - action: utter_action_complete
+
+# Status
+
+- story: get lights on
+  steps:
+  - intent: get_status
+    entities:
+      - query: how many
+      - device: lights
+      - amount: on
+      - location: downstairs
+  - action: utter_response_count
+
+- story: is the living room occupied
+  steps:
+  - intent: get_status
+    entities:
+      - query: is
+      - location: living room
+      - amount: occupied
+  - action: utter_response_single
+
+- story: what's the basement temp
+  steps:
+  - intent: get_status
+    entities:
+      - query: what's
+      - location: basement
+      - device: temperature
+  - action: utter_response_single

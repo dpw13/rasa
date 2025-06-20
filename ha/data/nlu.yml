@@ -1,0 +1,65 @@
+version: "3.1"
+
+nlu:
+- intent: adjust
+  examples: |
+    - turn [up](amount) the [temperature](device)
+    - turn [down](amount) the [fan](device)
+    - can you [mute](amount) the [TV](device)?
+    - turn [off](amount) the [lights](device)
+    - set the [lights](device) to [twenty percent](amount)
+    - turn [on](amount) the party [lights](device)
+    - turn [off](amount) the [living room](location) [fan](device)
+    - turn [on](amount) the [lights](device) in the [basement](location)
+    - turn [up](amount) the [lights](device) in my [office](location)
+    - turn [on](amount) the [fairy lights](device)
+    - turn [on](amount) [all](location) the [lights](device)
+
+# TODO: Might consider retrieval intents to identify different types of questions
+- intent: get_status
+  examples: |
+    - [what's](query) the [temperature](device) [upstairs](location)?
+    - [what's](query) the [volume](device) set to?
+    - [are any](query) [lights](device) on?
+    - [is there](query) [anybody]{"entity": "device", "value": "occupancy"} [downstairs](location)?
+    - [what is](query) the [humidity](device) in the [bathroom](location)?
+    - [how many](query) [lights](device) are [on](amount) [downstairs](location)?
+    - [is](query) the [living room](location) [occupied](amount)?
+    - [what is](query) the [thermostat](device) set to?
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - nah
+    - no thanks
+    - hush
+    - stop
+    - go away
+
+#- intent: weather
+#  examples: |
+#    - what's the temperature outside?
+#    - when is it going to rain?
+#    - how's the weather this weekend?
+#    - how much rain are we going to get this week?
+#    - is it going to be sunny tomorrow?
+#
+## Probably want retrieval intents for diagnostics
+#- intent: diagnostics
+#  examples: |
+#    - what did you hear?
+#    - mark this conversation
+#    - remember this
+#    - what are you thinking?
+#    - how are you feeling?
+#    - what was the confidence on that last action?

@@ -1,0 +1,33 @@
+Function, Entity, Location, Integration
+Basement Sitting Area Ceiling Fan, Basement Sitting Area Ceiling Fan, Basement Sitting Area, Lutron Caséta
+Basement Sitting Area Ceiling Fan Light, Basement Sitting Area Ceiling Fan Light, Basement Sitting Area, Lutron Caséta
+Basement TV, Basement, Basement Work Area, Google Cast
+Basement Work Area Accent Lights, Basement Work Area Accent Lights, Basement Work Area, Lutron Caséta
+Basement Work Area Main Lights, Basement Work Area Main Lights, Basement Work Area, Lutron Caséta
+Bathroom Humidity, Bathroom Floor, Master Bedroom, HomeKit Device
+Bathroom Light Level, Bathroom Floor, Master Bedroom, HomeKit Device
+Mysa-16aa20 Identify, Bathroom Floor, Master Bedroom, HomeKit Device
+Mysa-16aa20 Temperature Display Units, Bathroom Floor, Master Bedroom, HomeKit Device
+Temperature, Bathroom Floor, Master Bedroom, HomeKit Device
+Thermostat, Bathroom Floor, Master Bedroom, HomeKit Device
+Bedroom, Bedroom, Master Bedroom, HomeKit Device
+Clear Hold, Bedroom, Master Bedroom, HomeKit Device
+Current Humidity, Bedroom, Master Bedroom, HomeKit Device
+Current Mode, Bedroom, Master Bedroom, HomeKit Device
+Current Temperature, Bedroom, Master Bedroom, HomeKit Device
+Identify, Bedroom, Master Bedroom, HomeKit Device
+Motion, Bedroom, Master Bedroom, HomeKit Device
+Occupancy, Bedroom, Master Bedroom, HomeKit Device
+Temperature Display Units, Bedroom, Master Bedroom, HomeKit Device
+Chromecast, Chromecast, Living Room, Android TV Remote
+Flood 1, Flood 1, Living Room, Philips Hue
+Flood 2, Flood 2, Living Room, Philips Hue
+Home, Forecast, —, Meteorologisk institutt (Met.no)
+Guest Bedroom Ceiling Fan Light, Guest Bedroom Ceiling Fan Light, Guest Bedroom, Lutron Caséta
+Update, HACS, Living Room, HACS
+Automation: Routine 1, Hue Bridge, Living Room, Philips Hue
+Automation: state_after_streaming, Hue Bridge, Living Room, Philips Hue
+Living Room Entertainment, Hue Bridge, Living Room, Philips Hue
+LG webOS TV OLED65C1PUB, LG webOS TV OLED65C1PUB, Living Room, LG webOS TV
+Clear Hold, Living Room, Living Room, HomeKit Device
+Current Humidity, Living Room, Living Room, HomeKit Device
