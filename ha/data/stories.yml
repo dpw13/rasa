@@ -11,7 +11,7 @@ stories:
       - device: fan
       - amount: up
   - action: adjust_form
-  - action: utter_action_complete
+  - action: action_submit_adjust
 
 - story: set lights
   steps:
@@ -20,7 +20,7 @@ stories:
       - device: lights
       - amount: on
   - action: adjust_form
-  - action: utter_action_complete
+  - action: action_submit_adjust
 
 - story: set room lights
   steps:
@@ -30,7 +30,7 @@ stories:
       - location: upstairs
       - amount: off
   - action: adjust_form
-  - action: utter_action_complete
+  - action: action_submit_adjust
 
 # Status
 

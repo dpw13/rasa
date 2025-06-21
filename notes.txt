@@ -19,6 +19,10 @@ make prepare-spacy
 make prepare-mitie
 make prepare-transformers
 
+# To run app:
+rasa run actions &
+rasa interactive -v
+
 TODO:
 short-term:
     * silence pykwalify load_module() warnings

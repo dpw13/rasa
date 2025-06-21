@@ -77,13 +77,14 @@ forms:
 
 actions:
   - validate_adjust_form
+  - action_submit_adjust
 
 responses:
   utter_done:
   - text: "Done."
 
   utter_ask_location:
-  - text: "Sure, where or which {device} do you want to adjust?"
+  - text: "What room do you want to adjust?"
 
   utter_ask_device:
   - condition:
@@ -91,12 +92,12 @@ responses:
       name: amount
       # TODO: can we specify multiple values to match?
       value: on
-    text: "Sure, which device do you want to turn {amount}?"
+    text: "Which device do you want to turn {amount}?"
   - condition:
     - type: slot
       name: amount_type
       value: absolute
-    text: "Sure, which device do you want to set?"
+    text: "Sure, which device do you want to set to {amount}?"
   # Default ask_device response
   - text: "Sure, which device do you want to adjust?"
 

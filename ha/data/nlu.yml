@@ -14,6 +14,8 @@ nlu:
     - turn [up](amount) the [lights](device) in my [office](location)
     - turn [on](amount) the [fairy lights](device)
     - turn [on](amount) [all](location) the [lights](device)
+    - turn [off](amount) the [fan](device) in the [kitchen](location)
+    - turn [down](amount) the [outside](location) [lights](device)
 
 # TODO: Might consider retrieval intents to identify different types of questions
 - intent: get_status
@@ -45,6 +47,9 @@ nlu:
     - hush
     - stop
     - go away
+    - nevermind
+    - quit
+    - exit
 
 #- intent: weather
 #  examples: |

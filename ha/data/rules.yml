@@ -3,12 +3,15 @@ version: "3.1"
 # Rules take highest priority for predicting actions
 rules:
 
-#- rule: Say goodbye anytime the user says goodbye
+#- rule: Submit adjust form
+#  condition:
+#  # Condition that form is active.
+#  - active_loop: adjust_form
 #  steps:
-#  - intent: goodbye
-#  - action: utter_goodbye
-#
-#- rule: Say 'I am a bot' anytime the user challenges
-#  steps:
-#  - intent: bot_challenge
-#  - action: utter_iamabot
+#  # Form is deactivated
+#  # Note: why is the action here necessary?
+#  - action: adjust_form
+#  - active_loop: null
+#  - slot_was_set:
+#    - requested_slot: null
+#  - action: action_submit_adjust
