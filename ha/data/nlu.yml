@@ -1,13 +1,15 @@
 version: "3.1"
-
 nlu:
 - intent: adjust
   examples: |
-    - turn [up](amount) the [temperature](device)
+    - turn [up](amount) the [temperature](parameter)
     - turn [down](amount) the [fan](device)
-    - can you [mute](amount) the [TV](device)?
+    - turn [down](amount) the [fan](device) [speed](parameter)
+    - can you [mute](amount) the [volume](parameter) on the [TV](device)?
+    - can you turn [up](amount) the [stereo](device)?
     - turn [off](amount) the [lights](device)
-    - set the [lights](device) to [twenty percent](amount)
+    - set the [lights](device) to [20 percent](amount)
+    - set the [brightness](device) [upstairs](location) to [50 percent](amount)
     - turn [on](amount) the party [lights](device)
     - turn [off](amount) the [living room](location) [fan](device)
     - turn [on](amount) the [lights](device) in the [basement](location)
@@ -16,32 +18,38 @@ nlu:
     - turn [on](amount) [all](location) the [lights](device)
     - turn [off](amount) the [fan](device) in the [kitchen](location)
     - turn [down](amount) the [outside](location) [lights](device)
-
-# TODO: Might consider retrieval intents to identify different types of questions
+    - set the [living room](location) [fan](device) [speed](parameter) to [5](amount)
+    - set the [basement](location) [temperature](parameter) to [75](amount)
+    - set the [basement](location) [temperature](parameter) to [78](amount)
+    - turn [up](amount) the [brightness](parameter) in the [living room](location)
 - intent: get_status
   examples: |
-    - [what's](query) the [temperature](device) [upstairs](location)?
-    - [what's](query) the [volume](device) set to?
+    - [what's](query) the [temperature](parameter) [upstairs](location)?
+    - [what's](query) the [volume](parameter) set to?
     - [are any](query) [lights](device) on?
-    - [is there](query) [anybody]{"entity": "device", "value": "occupancy"} [downstairs](location)?
-    - [what is](query) the [humidity](device) in the [bathroom](location)?
+    - [is there](query) [anybody]{"entity": "parameter", "value": "occupancy"} [downstairs](location)?
+    - [what is](query) the [humidity](parameter) in the [bathroom](location)?
     - [how many](query) [lights](device) are [on](amount) [downstairs](location)?
-    - [is](query) the [living room](location) [occupied](amount)?
+    - [is](query) the [living room](location) [occupied]{"entity": "parameter", "value": "occupancy"}?
     - [what is](query) the [thermostat](device) set to?
-
+    - [what is](query) the [temperature](parameter) in the [living room](location)?
+    - [what is](query) the [living room](location) [brightness](parameter) set to?
+    - [what's](query) the [basement](location) [temperature](parameter)?
+    - [what is](query) the [basement](location) [thermostat](device) set to?
+    - [what is](query) the [living room](location) [thermostat](device) set to?
 - intent: affirm
   examples: |
     - yes
-    - y
+    - yep
     - indeed
     - of course
     - that sounds good
     - correct
-
+    - sure
+    - please
 - intent: deny
   examples: |
     - no
-    - n
     - nah
     - no thanks
     - hush
@@ -50,21 +58,7 @@ nlu:
     - nevermind
     - quit
     - exit
-
-#- intent: weather
-#  examples: |
-#    - what's the temperature outside?
-#    - when is it going to rain?
-#    - how's the weather this weekend?
-#    - how much rain are we going to get this week?
-#    - is it going to be sunny tomorrow?
-#
-## Probably want retrieval intents for diagnostics
-#- intent: diagnostics
-#  examples: |
-#    - what did you hear?
-#    - mark this conversation
-#    - remember this
-#    - what are you thinking?
-#    - how are you feeling?
-#    - what was the confidence on that last action?
+- synonym: occupancy
+  examples: |
+    - anybody
+    - occupied
