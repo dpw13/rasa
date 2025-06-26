@@ -85,6 +85,10 @@ stories:
   - action: query_parameter_form
   - action: action_submit_query_parameter
 
+# TODO: unhappy paths
+
+# Interactive stories
+
 - story: interactive_story_1
   steps:
   - intent: adjust
@@ -109,9 +113,7 @@ stories:
   - slot_was_set:
     - device: thermostat
   - slot_was_set:
-    - amount_val: 78.0
-  - slot_was_set:
-    - amount_type: absolute
+    - action: absolute
   - slot_was_set:
     - requested_slot: null
   - active_loop: null
@@ -197,9 +199,9 @@ stories:
   - slot_was_set:
     - device: light
   - slot_was_set:
-    - amount_type: relative
+    - action: relative
   - slot_was_set:
-    - amount_val: 0.2
+    - amount: 0.2
   - slot_was_set:
     - requested_slot: null
   - active_loop: null

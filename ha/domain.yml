@@ -3,9 +3,10 @@ intents:
 - adjust
 - get_status
 entities:
-- parameter
-- device
+- action
 - location
+- device
+- parameter
 - query
 - amount
 slots:
@@ -16,6 +17,7 @@ slots:
     - main floor
     - upstairs
     - outside
+    - garage
     - upstairs
     - master bedroom
     - guest bedroom
@@ -47,21 +49,15 @@ slots:
     - type: from_entity
       entity: device
   amount:
-    type: text
+    type: float
     mappings:
     - type: from_entity
       entity: amount
-  amount_val:
-    type: float
+  action:
+    type: text
     mappings:
-    - type: custom
-  amount_type:
-    type: categorical
-    values:
-    - absolute
-    - relative
-    mappings:
-    - type: custom
+    - type: from_entity
+      entity: action
   query:
     type: text
     mappings:
@@ -70,12 +66,11 @@ slots:
 forms:
   adjust_form:
     required_slots:
+    - action
     - location
     - device
     - parameter
     - amount
-    - amount_type
-    - amount_val
   query_parameter_form:
     required_slots:
     - query
@@ -89,8 +84,6 @@ forms:
     - device
     - parameter
     - amount
-    - amount_type
-    - amount_val
 actions:
 - action_submit_adjust
 - action_submit_query_parameter
@@ -106,16 +99,6 @@ responses:
   utter_ask_parameter:
   - text: What do you want to change?
   utter_ask_device:
-  - condition:
-    - type: slot
-      name: amount
-      value: on
-    text: Which device do you want to turn {amount}?
-  - condition:
-    - type: slot
-      name: amount_type
-      value: absolute
-    text: Sure, which device do you want to set to {amount}?
   - text: Sure, which device do you want to adjust?
   utter_ask_amount:
   - text: How would you like to adjust the {device}?

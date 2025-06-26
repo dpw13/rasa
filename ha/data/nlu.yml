@@ -2,26 +2,33 @@ version: "3.1"
 nlu:
 - intent: adjust
   examples: |
-    - turn [up](amount) the [temperature](parameter)
-    - turn [down](amount) the [fan](device)
-    - turn [down](amount) the [fan](device) [speed](parameter)
-    - can you [mute](amount) the [volume](parameter) on the [TV](device)?
-    - can you turn [up](amount) the [stereo](device)?
-    - turn [off](amount) the [lights](device)
-    - set the [lights](device) to [20 percent](amount)
-    - set the [brightness](device) [upstairs](location) to [50 percent](amount)
-    - turn [on](amount) the party [lights](device)
-    - turn [off](amount) the [living room](location) [fan](device)
-    - turn [on](amount) the [lights](device) in the [basement](location)
-    - turn [up](amount) the [lights](device) in my [office](location)
-    - turn [on](amount) the [fairy lights](device)
-    - turn [on](amount) [all](location) the [lights](device)
-    - turn [off](amount) the [fan](device) in the [kitchen](location)
-    - turn [down](amount) the [outside](location) [lights](device)
-    - set the [living room](location) [fan](device) [speed](parameter) to [5](amount)
-    - set the [basement](location) [temperature](parameter) to [75](amount)
-    - set the [basement](location) [temperature](parameter) to [78](amount)
-    - turn [up](amount) the [brightness](parameter) in the [living room](location)
+    - [turn up](action) the [temperature](parameter)
+    - [turn down](action) the [fan](device)
+    - [turn down](action) the [fan](device) [speed](parameter)
+    - can you [mute](action) the [volume](parameter) on the [TV](device)?
+    - can you [turn up](action) the [stereo](device)?
+    - [turn off](action) the [lights](device)
+    - [set](action) the [lights](device) to [20 percent](amount)
+    - [set](action) the [brightness](device) [upstairs](location) to [50 percent](amount)
+    - [turn on](action) the party [lights](device)
+    - [turn off](action) the [living room](location) [fan](device)
+    - [turn on](action) the [lights](device) in the [basement](location)
+    - [turn up](action) the [lights](device) in my [office](location)
+    - [turn on](action) the [fairy lights](device)
+    - [turn on](action) [all](location) the [lights](device)
+    - [turn off](action) the [fan](device) in the [kitchen](location)
+    - [turn down](action) the [outside](location) [lights](device)
+    - [set](action) the [living room](location) [fan](device) [speed](parameter) to [5](amount)
+    - [set](action) the [basement](location) [temperature](parameter) to [75](amount)
+    - [set](action) the [basement](location) [temperature](parameter) to [78](amount)
+    - [turn up](action) the [brightness](parameter) in the [living room](location)
+    - [set](action) the [living room](location) to [72](amount) [degrees]{"entity": "parameter", "value": "temperature"}
+    - [open](action) the [gate](device)
+    - [close](action) the [garage](device)
+    - [increase]{"entity": "action", "value": "turn up"} the [lights](device) in the [living room](location)
+    - [decrease]{"entity": "action", "value": "turn down"} the [fan](device) in the [basement](location)
+    - [turn down](action) the [temperature](parameter) in the [living room](location) by [5 degrees](amount)
+
 - intent: get_status
   examples: |
     - [what's](query) the [temperature](parameter) [upstairs](location)?
@@ -37,6 +44,7 @@ nlu:
     - [what's](query) the [basement](location) [temperature](parameter)?
     - [what is](query) the [basement](location) [thermostat](device) set to?
     - [what is](query) the [living room](location) [thermostat](device) set to?
+
 - intent: affirm
   examples: |
     - yes
@@ -62,3 +70,6 @@ nlu:
   examples: |
     - anybody
     - occupied
+- synonym: outside
+  examples: |
+    - exterior

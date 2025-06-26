@@ -65,6 +65,14 @@ TEST_DEVICE_LIST = {
             "temperature": 72,
         },
     },
+    "outside": {
+        "gate": {
+            "state": "closed",
+        },
+        "garage": {
+            "state": "closed",
+        }
+    }
 }
 
 
@@ -95,8 +103,16 @@ class DeviceLocationForm(FormValidationAction):
             if location is None or loc == location:
                 if slot_value in devices:
                     logger.debug("Found matching device %s %s", loc, slot_value)
-                    parameters = list(devices[slot_value].keys())
-                    return {"device": slot_value, "parameter": parameters[0]}
+                    ret = {"device": slot_value}
+                    if tracker.slots["parameter"] is None:
+                        parameters = list(devices[slot_value].keys())
+                        logger.debug("Assuming parameter %s from device", parameters[0])
+                        ret["parameter"] = parameters[0]
+                    if tracker.slots["location"] is None:
+                        logger.debug("Assuming location %s from device", loc)
+                        ret["location"] = loc
+
+                    return ret
 
         if location is None:
             logger.warning(f"no device '{slot_value}' found")
@@ -138,39 +154,60 @@ class DeviceAmountForm(DeviceLocationForm):
         return "_helper_device_amount_form"
 
     # Format: dict{txt: (Absolute, Amount)}
-    AMOUNT_TO_VAL = {
-        "up": ("relative", 0.20),
-        "down": ("relative", 0.20),
-        "on": ("absolute", 1.0),
-        "off": ("absolute", 0.0),
+    ACTION_DICT = {
+        "turn up": ("set_relative", 0.20),
+        "turn down": ("set_relative", 0.20),
+        "turn on": ("set_absolute", 1.0),
+        "turn off": ("set_absolute", 0.0),
+        "open": ("set_absolute", 1.0),
+        "close": ("set_absolute", 0.0),
+        "mute": ("set_absolute", 0.0),
+        "unmute": ("set_absolute", 0.5), # TODO: restore previous volume? Maybe mute is special?
+        # TODO: there are likely other device-specific actions like play, stop, etc
+        # TODO: check whether an action applies to a specific device?
+        # TODO: relative amount depends on what you're adjusting. A fan might be turned up by 25%,
+        #   lights by 15%, and temperature by 2 degrees.
     }
 
     # Docs: Concepts -> Actions -> Forms
-    def validate_amount(
+    def validate_action(
         self, slot_value: Text, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> Dict[Text, Any]:
         # Convert NL "amount" slot into absolute/relative and a float
-        logger.info(f"Found amount '{slot_value}'")
-        if slot_value in self.AMOUNT_TO_VAL:
-            t = self.AMOUNT_TO_VAL[slot_value]
-            return {"amount": slot_value, "amount_type": t[0], "amount_val": t[1]}
+        logger.info(f"Found action '{slot_value}'")
+        if slot_value in self.ACTION_DICT:
+            t = self.ACTION_DICT[slot_value]
+            ret = {"action": t[0]}
+            if tracker.slots["amount"] is None:
+                # Only set the amount if it's not already set
+                # TODO: can we ensure amount is parsed first?
+                ret["amount"] = t[1]
+            return ret
 
-        words = slot_value.split(" ")
-        mult = 1
+
+    def validate_amount(
+        self, slot_value: Text, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> Dict[Text, Any]:
         ret = {"amount": slot_value}
-        for word in words:
-            if word == "percent":
-                mult = 0.01
-            else:
-                try:
-                    ret["amount_val"] = float(word)
-                    ret["amount_type"] = "absolute"
-                except:
-                    pass
+        mult = 1
 
-        if "amount_val" in ret:
+        if isinstance(slot_value, Text):
+            words = slot_value.split(" ")
+            for word in words:
+                if word == "percent":
+                    mult = 0.01
+                else:
+                    try:
+                        ret["amount"] = float(word)
+                        if tracker.slots["action"] is None:
+                            # Implicitly set absolute action when parsing amount
+                            ret["action"] = "absolute"
+                    except:
+                        pass
+
+        if isinstance(ret["amount"], float):
             # Apply percentage or units
-            ret["amount_val"] *= mult
+            ret["amount"] *= mult
 
         return ret
 
@@ -190,16 +227,22 @@ class SubmitAdjust(Action):
         self, dispatcher, tracker: Tracker, domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
         """Apply the requested adjustment and report back."""
-        args = {k: tracker.slots[k] for k in ["location", "device", "parameter", "amount_type", "amount_val"]}
+        args = {k: tracker.slots[k] for k in ["action", "location", "device", "parameter", "amount"]}
         logger.info(f"Executing: {args}")
 
         try:
             loc = TEST_DEVICE_LIST[tracker.slots["location"]]
             dev = loc[tracker.slots["device"]]
-            dev[tracker.slots["parameter"]] = tracker.slots["amount_val"]
+            if tracker.slots["action"] == "set_absolute":
+                dev[tracker.slots["parameter"]] = tracker.slots["amount"]
+            elif tracker.slots["action"] == "set_relative":
+                # TODO: clamp values
+                dev[tracker.slots["parameter"]] += tracker.slots["amount"]
+            else:
+                raise ValueError(f"Action {tracker.slots['action']} unimplemented for {tracker.slots['device']}")
             # TODO: May be better to set a slot and utter something in domain.yml
             # TODO: support multiple devices being set at once
-            dispatcher.utter_message(f"Set {tracker.slots['device']} {tracker.slots['parameter']} to {tracker.slots['amount_val']}")
+            dispatcher.utter_message(f"Set {tracker.slots['device']} {tracker.slots['parameter']} to {dev[tracker.slots['parameter']]}")
         except KeyError as e:
             logger.exception(e)
             dispatcher.utter_message(f"Sorry, there was an error setting the {tracker.slots['device']} {tracker.slots['parameter']}.")
