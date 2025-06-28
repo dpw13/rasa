@@ -1,10 +1,9 @@
 Building docs:
 ==============
 "cannot use require on ES module": replace import in offending module:
-async () => {
-const stringWidth = await import('string-width');
 //const stringWidth = require('string-width');
-}
+async () => { const stringWidth = await import('string-width'); }
+
 
 invalid references in docs/docs/reference/sidebar.json:
 - remove __main__ and __init__ from sidebar lists (probably has a better solution but this works for now)

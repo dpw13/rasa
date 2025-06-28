@@ -1817,24 +1817,38 @@ components:
         pipeline:
           description: Pipeline list
           type: array
+          items:
+            type: string
         policies:
           description: Policies list
           type: array
+          items:
+            type: string
         entities:
           description: Entity list
           type: array
+          items:
+            type: string
         slots:
           description: Slots list
           type: array
+          items:
+            type: string
         actions:
           description: Action list
           type: array
+          items:
+            type: string
         forms:
           description: Forms list
           type: array
+          items:
+            type: string
         e2e_actions:
           description: E2E Action list
           type: array
+          items:
+            type: string
         responses:
           description: Bot response templates
           type: object
@@ -1851,12 +1865,18 @@ components:
         nlu:
           description: Rasa NLU data, array of intents
           type: array
+          items:
+            type: string
         rules:
           description: Rule list
           type: array
+          items:
+            type: string
         stories:
           description: Rasa Core stories in YAML format
           type: array
+          items:
+            type: string
 
         force:
           type: boolean
