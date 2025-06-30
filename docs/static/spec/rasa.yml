@@ -1189,9 +1189,7 @@ components:
           type: string
           description: >-
             Origin of the message - who sent it
-          example: user
-          enum:
-            - user
+          example: user_name
         parse_data:
           $ref: '#/components/schemas/ParseResult'
       required: ["text", "sender"]
@@ -1301,7 +1299,7 @@ components:
           description: Event name
           example: "slot"
         timestamp:
-          type: integer
+          type: number
           description: Time of application
           example: null
         metadata:
@@ -1696,10 +1694,8 @@ components:
           description: ID of the conversation
           example: default
         slots:
-          type: array
           description: Slot values
-          items:
-            $ref: '#/components/schemas/Slot'
+          $ref: '#/components/schemas/Slot'
         latest_message:
           $ref: '#/components/schemas/ParseResult'
         latest_event_time:
@@ -2167,16 +2163,9 @@ components:
     Slot:
       type: object
       additionalProperties:
-        $ref: '#/components/schemas/SlotValue'
+        type: any
       example:
         slot_name: slot_value
-
-    SlotValue:
-      oneOf:
-        - type: string
-        - type: array
-          items:
-            type: string
 
     SlotDescription:
       type: object

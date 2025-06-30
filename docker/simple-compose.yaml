@@ -1,22 +1,26 @@
 services:
   app:
-    image: mcr.microsoft.com/vscode/devcontainers/python:3.10-bookworm
+    image: wmw/rasa:localdev-full
     environment:
       DB_DRIVER: "postgresql"
       DB_USER: "admin"
       DB_PASSWORD: "postgres"
 
+    ports:
+    - "5005:5005"
     volumes:
-      - ..:/workspaces/rasa:cached
-      - ~/.cache/vscode:/home/vscode/.cache
+      - ../ha:/app
 
-    # Overrides default command so things don't shut down after the process ends.
-    command: /bin/sh -c "tail -f /dev/null"
+    command: run --enable-api -m /app/models --endpoints /app/endpoints.yml --connector rest
 
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
-    network_mode: service:db
-    # Uncomment the next line to use a non-root user for all processes.
-    # user: vscode
+  action-server:
+    image: wmw/rasa:localdev
+    ports:
+    - "5055:5055"
+    volumes:
+      - ../ha:/app
+
+    command: run actions
 
   db:
     image: "bitnami/postgresql:17"
@@ -37,7 +41,7 @@ services:
 
   redis:
     restart: unless-stopped
-    image: "bitnami/redis:7"
+    image: "bitnami/redis:7.4"
     environment:
       REDIS_PASSWORD: "redis"
     expose:

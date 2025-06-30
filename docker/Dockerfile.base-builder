@@ -1,6 +1,6 @@
 # The base builder image used for all images
-ARG IMAGE_BASE_NAME
-ARG POETRY_VERSION
+ARG IMAGE_BASE_NAME=rasa
+ARG POETRY_VERSION=2.1.3
 
 FROM ${IMAGE_BASE_NAME}:base-poetry-${POETRY_VERSION}
 
@@ -16,7 +16,7 @@ RUN apt-get update -qq && \
   git-core \
   openssl \
   libssl-dev \
-  libffi7 \
+  libffi8 \
   libffi-dev \
   libpng-dev \
   && apt-get autoremove -y

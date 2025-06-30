@@ -234,10 +234,9 @@ publish-docs:
 python-client:
 	mkdir -p build
 	rm -rf build/rasa-client
-	cd docs/ && yarn run openapi-generator-cli generate -i static/spec/rasa.yml -g python --package-name rasa-client --api-package rasa-client-api -o ../build/rasa-client
+	cd docs/ && yarn run openapi-generator-cli generate -i static/spec/rasa.yml -g python --package-name rasa_client --library asyncio -p "packageVersion=3.7.0a1" -o ../build/rasa_client
 	# Need to modify license in pyproject.toml to match parent project (Apache-2.0)
-	# Probably also want to set version to match
-	cd build/rasa-client && poetry build -f wheel -n
+	#cd build/rasa_client && poetry build -f wheel -n
 
 release:
 	poetry run python scripts/release.py

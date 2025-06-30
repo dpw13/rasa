@@ -1,9 +1,9 @@
 # The default Docker image
-ARG IMAGE_BASE_NAME
-ARG BASE_IMAGE_HASH
-ARG BASE_BUILDER_IMAGE_HASH
+ARG IMAGE_BASE_NAME=rasa
+ARG BASE_IMAGE_HASH=localdev
+ARG BASE_BUILDER_IMAGE_HASH=localdev
 
-FROM ${IMAGE_BASE_NAME}:base-builder-${BASE_BUILDER_IMAGE_HASH} as builder
+FROM ${IMAGE_BASE_NAME}:base-builder-${BASE_BUILDER_IMAGE_HASH} AS builder
 # copy files
 COPY . /build/
 
@@ -13,14 +13,14 @@ WORKDIR /build
 # install dependencies
 RUN python -m venv /opt/venv && \
   . /opt/venv/bin/activate && \
-  pip install --no-cache-dir -U "pip==22.*" -U "wheel>0.38.0" && \
-  poetry install --no-dev --no-root --no-interaction && \
+  pip install --no-cache-dir -U "pip>=22.*" -U "wheel>0.38.0" && \
+  poetry install --no-root --no-interaction && \
   poetry build -f wheel -n && \
   pip install --no-deps dist/*.whl && \
   rm -rf dist *.egg-info
 
 # start a new build stage
-FROM ${IMAGE_BASE_NAME}:base-${BASE_IMAGE_HASH} as runner
+FROM ${IMAGE_BASE_NAME}:base-${BASE_IMAGE_HASH} AS runner
 
 # copy everything from /opt
 COPY --from=builder /opt/venv /opt/venv

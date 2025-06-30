@@ -1,5 +1,5 @@
 variable "IMAGE_NAME" {
-  default = "rasa/rasa"
+  default = "wmw/rasa"
 }
 
 variable "IMAGE_TAG" {
@@ -21,7 +21,7 @@ variable "BASE_BUILDER_IMAGE_HASH" {
 # keep this in sync with the version in .github/poetry_version.txt
 # the variable is set automatically for builds in CI
 variable "POETRY_VERSION" {
-  default = "1.4.2"
+  default = "2.1.3"
 }
 
 group "base-images" {
@@ -32,12 +32,24 @@ target "base" {
   dockerfile = "docker/Dockerfile.base"
   tags       = ["${IMAGE_NAME}:base-${IMAGE_TAG}"]
   cache-to   = ["type=inline"]
+
+  args = {
+    IMAGE_BASE_NAME = "${IMAGE_NAME}"
+    BASE_IMAGE_HASH = "${BASE_IMAGE_HASH}"
+    POETRY_VERSION  = "${POETRY_VERSION}"
+  }
 }
 
 target "base-mitie" {
   dockerfile = "docker/Dockerfile.base-mitie"
   tags       = ["${IMAGE_NAME}:base-mitie-${IMAGE_TAG}"]
   cache-to   = ["type=inline"]
+
+  args = {
+    IMAGE_BASE_NAME = "${IMAGE_NAME}"
+    BASE_IMAGE_HASH = "${BASE_IMAGE_HASH}"
+    POETRY_VERSION  = "${POETRY_VERSION}"
+  }
 }
 
 target "base-poetry" {

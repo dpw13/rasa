@@ -3,7 +3,7 @@ import logging
 import uuid
 import os
 from functools import partial
-from typing import Any, List, Optional, TYPE_CHECKING, Text, Union, Dict
+from typing import Any, List, Optional, TYPE_CHECKING, Text, Union, Dict, Callable
 
 import rasa.core.utils
 from rasa.plugin import plugin_manager
@@ -21,6 +21,9 @@ from rasa.core.channels.channel import InputChannel
 from rasa.core.utils import AvailableEndpoints
 import rasa.shared.utils.io
 from sanic import Sanic
+import sanic.log as sanic_log
+from sanic.worker.loader import AppLoader
+from sanic.worker.manager import WorkerManager
 from asyncio import AbstractEventLoop
 
 if TYPE_CHECKING:
@@ -28,6 +31,9 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger()  # get the root logger
 
+# The server takes quite a while to start up if a model is being loaded. Unfortunately
+# it doesn't appear that normal logging works during server setup.
+WorkerManager.THRESHOLD = 1200 # Units of 0.1 seconds!!
 
 def create_http_input_channels(
     channel: Optional[Text], credentials_file: Optional[Text]
@@ -99,6 +105,7 @@ def configure_app(
     syslog_port: Optional[int] = None,
     syslog_protocol: Optional[Text] = None,
     request_timeout: Optional[int] = None,
+    before_start: Callable = None
 ) -> Sanic:
     """Run the agent."""
     rasa.core.utils.configure_file_logging(
@@ -106,6 +113,7 @@ def configure_app(
     )
 
     if enable_api:
+        logging.info("Creating app with API")
         app = server.create_app(
             cors_origins=cors,
             auth_token=auth_token,
@@ -150,6 +158,11 @@ def configure_app(
 
         app.add_task(run_cmdline_io)
 
+    if before_start:
+        app.register_listener(before_start, "before_server_start")
+    app.register_listener(create_connection_pools, "after_server_start")
+    app.register_listener(close_resources, "after_server_stop")
+
     return app
 
 
@@ -186,7 +199,7 @@ def serve_application(
 
     input_channels = create_http_input_channels(channel, credentials)
 
-    app = configure_app(
+    loader = AppLoader(factory=partial(configure_app,
         input_channels,
         cors,
         auth_token,
@@ -204,21 +217,13 @@ def serve_application(
         syslog_port=syslog_port,
         syslog_protocol=syslog_protocol,
         request_timeout=request_timeout,
-    )
+        before_start=partial(load_agent_on_start, model_path, endpoints, remote_storage),
+    ))
 
     ssl_context = server.create_ssl_context(
         ssl_certificate, ssl_keyfile, ssl_ca_file, ssl_password
     )
     protocol = "https" if ssl_context else "http"
-
-    logger.info(f"Starting Rasa server on {protocol}://{interface}:{port}")
-
-    app.register_listener(
-        partial(load_agent_on_start, model_path, endpoints, remote_storage),
-        "before_server_start",
-    )
-    app.register_listener(create_connection_pools, "after_server_start")
-    app.register_listener(close_resources, "after_server_stop")
 
     number_of_workers = rasa.core.utils.number_of_sanic_workers(
         endpoints.lock_store if endpoints else None
@@ -228,17 +233,26 @@ def serve_application(
         input_channels, endpoints, model_path, number_of_workers, enable_api
     )
 
-    rasa.utils.common.update_sanic_log_level(
-        log_file, use_syslog, syslog_address, syslog_port, syslog_protocol
-    )
+    #rasa.utils.common.update_sanic_log_level(
+    #    log_file, use_syslog, syslog_address, syslog_port, syslog_protocol
+    #)
 
-    app.run(
+    app = loader.load()
+
+    # Dev implies auto reload
+    app.prepare(
         host=interface,
         port=port,
         ssl=ssl_context,
         backlog=int(os.environ.get(ENV_SANIC_BACKLOG, "100")),
         workers=number_of_workers,
+        debug=True,
+        auto_reload=False,
+        single_process=True,
     )
+
+    logger.info(f"Starting Rasa server on {protocol}://{interface}:{port}")
+    Sanic.serve(app, app_loader=loader)
 
 
 # noinspection PyUnusedLocal
@@ -254,13 +268,14 @@ async def load_agent_on_start(
     Used to be scheduled on server start
     (hence the `app` and `loop` arguments).
     """
+    sanic_log.logger.info("Loading agent: %s", model_path)
     app.ctx.agent = await agent.load_agent(
         model_path=model_path,
         remote_storage=remote_storage,
         endpoints=endpoints,
         loop=loop,
     )
-    logger.info("Rasa server is up and running.")
+    sanic_log.logger.info("Rasa server is up and running.")
     return app.ctx.agent
 
 

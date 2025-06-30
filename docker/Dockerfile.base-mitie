@@ -1,7 +1,7 @@
 # The base image used for all images that require a MITIE model
-FROM alpine:latest
+FROM debian:bookworm
 
-RUN apk add --update make wget
+RUN apt-get update && apt-get install -y bzip2 make wget
 
 # download mitie model
 WORKDIR /build
